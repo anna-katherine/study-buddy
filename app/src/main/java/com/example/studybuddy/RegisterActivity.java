@@ -3,7 +3,6 @@ package com.example.studybuddy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -77,21 +76,21 @@ public class RegisterActivity extends AppCompatActivity {
                                     //Display name will now be email name before '@' character
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     if (user != null){
-                                        String displayName = "";
+                                        StringBuilder displayName = new StringBuilder();
                                         for (int i = 0; i < username.length(); i++){
                                             if (username.charAt(i) == '@'){
                                                 break;
                                             }
-                                            displayName += username.charAt(i);
+                                            displayName.append(username.charAt(i));
                                         }
                                         UserProfileChangeRequest updateName = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(displayName).build();
+                                                .setDisplayName(displayName.toString()).build();
                                         user.updateProfile(updateName);
                                     }
 
                                     Toast.makeText(RegisterActivity.this, "User created.",
                                             Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    Intent intent = new Intent(RegisterActivity.this, EnrolledClassesActivity.class);
                                     startActivity(intent);
                                 } else {
                                     if (password.length() >= 8){

@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -56,6 +57,18 @@ public class EnrolledClassesActivity extends AppCompatActivity {
             }
         });
 
+        // Logout user code (copy and paste on every activity with logout button)
+        Button logoutButton = findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Logout user
+                FirebaseAuth.getInstance().signOut();
+                // Navigate to login page
+                Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }
