@@ -3,7 +3,6 @@ package com.example.studybuddy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -22,6 +21,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -72,17 +72,38 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
+
+                                    //Display name will now be email name before '@' character
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    if (user != null){
+                                        StringBuilder displayName = new StringBuilder();
+                                        for (int i = 0; i < username.length(); i++){
+                                            if (username.charAt(i) == '@'){
+                                                break;
+                                            }
+                                            displayName.append(username.charAt(i));
+                                        }
+                                        UserProfileChangeRequest updateName = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(displayName.toString()).build();
+                                        user.updateProfile(updateName);
+                                    }
+
                                     Toast.makeText(RegisterActivity.this, "User created.",
                                             Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    Intent intent = new Intent(RegisterActivity.this, EnrolledClassesActivity.class);
                                     startActivity(intent);
                                 } else {
-                                    Toast.makeText(RegisterActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
+                                    if (password.length() >= 8){
+                                        Toast.makeText(RegisterActivity.this, "Registration failed. Invalid email address.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(RegisterActivity.this, "Password must be at least 8 characters.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         });
-
             }
         });
 
