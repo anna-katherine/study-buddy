@@ -77,12 +77,17 @@ public class RegisterActivity extends AppCompatActivity {
                                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                 } else {
-                                    Toast.makeText(RegisterActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
+                                    if (password.length() >= 8){
+                                        Toast.makeText(RegisterActivity.this, "Registration failed. Invalid email address.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(RegisterActivity.this, "Password must be at least 8 characters.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         });
-
             }
         });
 
