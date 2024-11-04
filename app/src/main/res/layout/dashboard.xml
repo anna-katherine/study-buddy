@@ -11,11 +11,50 @@
     tools:context=".DashboardActivity">
 
     <TextView
-        android:text="@string/dashboard"
+        android:text="[Name]'s Dashboard"
         android:textStyle="bold"
         android:textSize="30sp"
         android:gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_margin="20dp"
         android:layout_width="match_parent"
+        android:layout_gravity="start"
         android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+
+        <ListView
+            android:id="@+id/groupList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/ButtonLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+            <Button
+                android:id="@+id/createGroupButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="@string/create_group">
+            </Button>
+            <Button
+                android:id="@+id/joinGroupButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="@string/join_group">
+            </Button>
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+
 </LinearLayout>
