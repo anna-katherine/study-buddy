@@ -11,6 +11,7 @@
     tools:context=".DashboardActivity">
 
     <TextView
+        android:id="@+id/user_details"
         android:text="[Name]'s Dashboard"
         android:textStyle="bold"
         android:textSize="30sp"

@@ -2,6 +2,7 @@ package com.example.studybuddy;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,12 +20,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 public class DashboardActivity extends AppCompatActivity {
 
     boolean[] checkedGroups;
     String[] groupList = {"Group 1", "Group 2", "Group 3"};
+    FirebaseAuth auth;
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +69,21 @@ public class DashboardActivity extends AppCompatActivity {
                 createDialog();
             }
         });
+
+        //Display user's email (for now, can change to username maybe)
+        auth = FirebaseAuth.getInstance();
+        TextView tv = findViewById(R.id.user_details);
+        user = auth.getCurrentUser();
+        if (user == null){
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else{
+            String name = user.getDisplayName();
+            name += "'s Dashboard";
+            tv.setText(name);
+        }
     }
     private void joinDialog()
     {

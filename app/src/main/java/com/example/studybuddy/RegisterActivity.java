@@ -22,6 +22,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -72,6 +73,22 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
+
+                                    //Display name will now be email name before '@' character
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    if (user != null){
+                                        String displayName = "";
+                                        for (int i = 0; i < username.length(); i++){
+                                            if (username.charAt(i) == '@'){
+                                                break;
+                                            }
+                                            displayName += username.charAt(i);
+                                        }
+                                        UserProfileChangeRequest updateName = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(displayName).build();
+                                        user.updateProfile(updateName);
+                                    }
+
                                     Toast.makeText(RegisterActivity.this, "User created.",
                                             Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
