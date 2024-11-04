@@ -1,14 +1,26 @@
 package com.example.studybuddy;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+
 public class EnrolledClassesActivity extends AppCompatActivity {
+
+    Button dashboardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +33,29 @@ public class EnrolledClassesActivity extends AppCompatActivity {
             return insets;
         });
 
-        // some code here to add the courses to the ListView
+        // some code here to add the courses to the ListView (this is filler @Alex)
+        ListView lv = findViewById(R.id.courseList);
+        ArrayList<String> items = new ArrayList<>();
+        items.add("Course 1");
+        items.add("Course 2");
+        items.add("Course 3");
+        items.add("Course 4");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        lv.setAdapter(adapter);
+
+        // navigate to dashboard page
+        dashboardButton = findViewById(R.id.dashboardbutton);
+        dashboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // just basic navigation for now, please edit for login functionality
+                Intent intent = new Intent(EnrolledClassesActivity.this, DashboardActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
     }
 }

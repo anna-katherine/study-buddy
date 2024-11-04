@@ -19,16 +19,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/courseNav"
+    <ListView
+        android:id="@+id/courseList"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        android:layout_height="wrap_content"/>
 
+
+    <LinearLayout
+        android:id="@+id/ButtonLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+        <Button
+            android:id="@+id/dashboardbutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="@string/dashboard">
+        </Button>
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="@string/log_out">
+        </Button>
+    </LinearLayout>
 
 </LinearLayout>
