@@ -2,7 +2,7 @@ package com.example.studybuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -15,14 +15,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
 public class EnrolledClassesActivity extends AppCompatActivity {
-
-    Button dashboardButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,27 +44,21 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
 
         // navigate to dashboard page
-        dashboardButton = findViewById(R.id.dashboardbutton);
-        dashboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                // just basic navigation for now, please edit for login functionality
-                Intent intent = new Intent(EnrolledClassesActivity.this, DashboardActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // Logout user code (copy and paste on every activity with logout button)
-        Button logoutButton = findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener()
+        {
             @Override
-            public void onClick(View view) {
-                // Logout user
-                FirebaseAuth.getInstance().signOut();
-                // Navigate to login page
-                Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
-                startActivity(intent);
+            public boolean onNavigationItemSelected(@NonNull MenuItem item)
+            {
+                if (item.getItemId() == R.id.dashboard) {
+                    startActivity(new Intent(EnrolledClassesActivity.this, DashboardActivity.class));
+                } else if (item.getItemId() == R.id.log_out) {
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                return true;
             }
         });
 

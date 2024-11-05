@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,11 +17,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -53,6 +58,15 @@ public class DashboardActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lv.setAdapter(adapter);
 
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                Intent intent = new Intent(DashboardActivity.this, StudyGroupActivity.class);
+                startActivity(intent);
+            }
+        });
+
         checkedGroups = new boolean[groupList.length];
         Button joinGroupButton = findViewById(R.id.joinGroupButton);
         joinGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +98,28 @@ public class DashboardActivity extends AppCompatActivity {
             name += "'s Dashboard";
             tv.setText(name);
         }
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener()
+        {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item)
+            {
+                if (item.getItemId() == R.id.courses) {
+                    startActivity(new Intent(DashboardActivity.this, EnrolledClassesActivity.class));
+                } else if (item.getItemId() == R.id.log_out) {
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                return true;
+            }
+        });
+
+
     }
+
+
     private void joinDialog()
     {
         // replace this with study groups

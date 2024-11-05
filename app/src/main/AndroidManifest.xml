@@ -22,11 +22,15 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".GroupChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Calendar"
             android:exported="false" />
         <activity
             android:name=".ResourceActivity"
@@ -42,8 +46,7 @@
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
     </application>
 
 </manifest>
