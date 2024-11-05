@@ -124,7 +124,6 @@ public class DashboardActivity extends AppCompatActivity {
         // pull from list of groups to populate the list
     }
 
-
     private void createDialog()
     {
         LayoutInflater inflater = getLayoutInflater();
@@ -142,15 +141,15 @@ public class DashboardActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
-                .setTitle("Create a Group")
-                .setPositiveButton("OK", (dialog, id) -> {
-                    String inputText = inputField.getText().toString();
-                    String selectedOption = dropdownSpinner.getSelectedItem().toString();
-                    // Create this in the backend and add user
-                })
-                .setNegativeButton("Cancel", (dialog, id) -> {
-                    dialog.dismiss();
-                });
+            .setTitle("Create a Group")
+            .setPositiveButton("OK", (dialog, id) -> {
+                String inputText = inputField.getText().toString();
+                String selectedOption = dropdownSpinner.getSelectedItem().toString();
+                // Create this in the backend and add user
+            })
+            .setNegativeButton("Cancel", (dialog, id) -> {
+                dialog.dismiss();
+            });
 
         // Show the dialog
         AlertDialog dialog = builder.create();

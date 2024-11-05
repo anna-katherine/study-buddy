@@ -1,5 +1,7 @@
 package com.example.studybuddy;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -7,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -23,12 +26,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import java.util.ArrayList;
+
+
 public class RegisterActivity extends AppCompatActivity {
 
     TextInputEditText editTextUsername, editTextPassword;
+    MaterialAutoCompleteTextView courseDropdown;
     Button buttonReg;
     FirebaseAuth mAuth;
     ProgressBar progressBar;
+
+    // Variables for enrolled courses selection @Alex change these if needed
+    private String[] courses = {"Course 1: Math", "Course 2: English", "Course 3: History", "Course 4: Biology", "Course 5: Data Structures"};
+    private boolean[] selectedItems = new boolean[courses.length];
+    private ArrayList<String> selectedCourses = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,10 +120,35 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-
-
-
+        // For the course selection
+        courseDropdown = findViewById(R.id.courseDropdown);
+        courseDropdown.setOnClickListener(v -> showCourseSelection());
     }
 
+    private void showCourseSelection()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select your enrolled courses");
 
+        builder.setMultiChoiceItems(courses, selectedItems, new DialogInterface.OnMultiChoiceClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int index, boolean isChecked) {
+                if (isChecked) {
+                    selectedCourses.add(courses[index]);
+                } else {
+                    selectedCourses.remove(courses[index]);
+                }
+            }
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            courseDropdown.setText(String.join(", ", selectedCourses));
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 }
