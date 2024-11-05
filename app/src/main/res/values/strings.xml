@@ -22,4 +22,6 @@
     <string name="calendar">Calendar</string>
     <string name="resources">Resources</string>
     <string name="courses">Courses</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
 </resources>
