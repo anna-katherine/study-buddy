@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -9,60 +9,65 @@
     android:gravity="center"
     android:padding="20dp"
     tools:context=".DashboardActivity">
-
-    <TextView
-        android:id="@+id/user_details"
-        android:text="[Name]'s Dashboard"
-        android:textStyle="bold"
-        android:textSize="30sp"
-        android:gravity="center"
-        android:layout_margin="20dp"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_gravity="start"
-        android:layout_height="wrap_content"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="1"
-        android:layout_height="0dp">
-
-        <ListView
-            android:id="@+id/groupList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content">
         <LinearLayout
-            android:id="@+id/ButtonLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent">
-            <Button
-                android:id="@+id/createGroupButton"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/user_details"
+                android:text="[Name]'s Dashboard"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:gravity="center"
+                android:layout_margin="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="@string/create_group">
-            </Button>
-            <Button
-                android:id="@+id/joinGroupButton"
+                android:layout_gravity="start"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:orientation="vertical"
                 android:layout_weight="1"
-                android:text="@string/join_group">
-            </Button>
+                android:layout_height="0dp">
+
+                <ListView
+                    android:id="@+id/groupList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:id="@+id/ButtonLayout"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+                    <Button
+                        android:id="@+id/createGroupButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/create_group">
+                    </Button>
+                    <Button
+                        android:id="@+id/joinGroupButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/join_group">
+                    </Button>
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/dashboard_nav"/>
+        android:layout_height="wrap_content"
+        app:menu="@menu/dashboard_nav" />
 
-</LinearLayout>
+</RelativeLayout>
