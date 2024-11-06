@@ -9,7 +9,7 @@
         android:title="@string/calendar"
         android:icon="@drawable/baseline_calendar_month_24"/>
     <item
-        android:id="@+id/resources"
-        android:title="@string/resources"
+        android:id="@+id/create"
+        android:title="Create Session"
         android:icon="@drawable/baseline_attach_file_24"/>
 </menu>
