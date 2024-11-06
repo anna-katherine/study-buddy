@@ -1,9 +1,12 @@
 package com.example.studybuddy;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,17 +21,32 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -36,6 +54,12 @@ public class DashboardActivity extends AppCompatActivity {
     String[] groupList = {"Group 1", "Group 2", "Group 3"};
     FirebaseAuth auth;
     FirebaseUser user;
+    FirebaseFirestore db;
+    DocumentReference userDoc;
+    CollectionReference groupCol;
+    ArrayList<String> items;
+    ArrayAdapter<String> adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,15 +72,22 @@ public class DashboardActivity extends AppCompatActivity {
             return insets;
         });
 
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        userDoc = db.collection("users").document(user.getUid());
+        groupCol = db.collection("groups");
+
         ListView lv = findViewById(R.id.groupList);
-        ArrayList<String> items = new ArrayList<>();
+        items = new ArrayList<>();
         items.add("Group 1");
         items.add("Group 2");
         items.add("Group 3");
         items.add("Group 4");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lv.setAdapter(adapter);
+
+        fetchUserData(user.getUid());
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -73,10 +104,13 @@ public class DashboardActivity extends AppCompatActivity {
                 .setTitle("Delete Item")
                 .setMessage("Are you sure you want to delete this item?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+                    String remove = items.get(position);
                     items.remove(position);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(DashboardActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
                     // Add Firebase implementation here @Alex
+                    removeGroup(remove);
+
                 })
                 .setNegativeButton("No", (dialog, which) -> {
                     // Do nothing
@@ -199,7 +233,8 @@ public class DashboardActivity extends AppCompatActivity {
             .setPositiveButton("OK", (dialog, id) -> {
                 String inputText = inputField.getText().toString();
                 String selectedOption = dropdownSpinner.getSelectedItem().toString();
-                // Create this in the backend and add user
+
+                createGroup(inputText);
             })
             .setNegativeButton("Cancel", (dialog, id) -> {
                 dialog.dismiss();
@@ -209,5 +244,122 @@ public class DashboardActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+    private void fetchUserData(String userID) {
+        // Reference to the user document
+        DocumentReference userRef = db.collection("users").document(userID);
+
+        // Fetch the document
+        userRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e){
+                items.clear();
+                items.addAll((ArrayList<String>)documentSnapshot.get("groupList"));
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    Boolean createdGroup = true;
+
+    private void createGroup(String groupName){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference group = db.collection("groups").document(groupName);
+
+        //Add group to database
+        group.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null && document.exists()) {
+                        //Exists, dont create new group
+                        createdGroup = false;
+                    }
+                    else {
+                        // Group does not exist, create it
+                        Map<String, Object> groupInfo = new HashMap<>();
+                        List<String> members = new ArrayList<>();
+                        members.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        groupInfo.put("memberList", members);
+                        groupInfo.put("sessionList", new ArrayList<StudySession>());
+                        group.set(groupInfo);
+                    }
+                }
+            }
+        });
+        //If it was created, also add to user's grouplist.
+        if (createdGroup){
+            db.runTransaction(new Transaction.Function<Void>() {
+                        @Override
+                        public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                            DocumentSnapshot snapshot = transaction.get(userDoc);
+                            ArrayList<String> newList = (ArrayList<String>) snapshot.get("groupList");
+                            newList.add(groupName);
+                            transaction.update(userDoc, "groupList", newList);
+                            return null;
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Transaction success!");
+                            fetchUserData(user.getUid());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Transaction failure.", e);
+                        }
+                    });
+        }
+    }
+
+    private void removeGroup(String name){
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(userDoc);
+                ArrayList<String> newList = (ArrayList<String>) snapshot.get("groupList");
+                newList.remove(name);
+                transaction.update(userDoc, "groupList", newList);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+                fetchUserData(user.getUid());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Transaction failure.", e);
+            }
+        });
+
+        DocumentReference groupDoc = groupCol.document(name);
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(groupDoc);
+                ArrayList<String> newList = (ArrayList<String>) snapshot.get("memberList");
+                newList.remove(user.getUid());
+                transaction.update(groupDoc, "memberList", newList);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+                fetchUserData(user.getUid());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Transaction failure.", e);
+            }
+        });
     }
 }

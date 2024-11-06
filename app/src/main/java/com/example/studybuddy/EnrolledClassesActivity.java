@@ -57,6 +57,7 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                     FirebaseAuth.getInstance().signOut();
                     Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
                     startActivity(intent);
+                    finish();
                 }
                 return true;
             }

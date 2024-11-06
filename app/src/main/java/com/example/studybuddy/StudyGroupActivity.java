@@ -30,6 +30,8 @@ import java.util.Calendar;
 public class StudyGroupActivity extends AppCompatActivity
 {
     String groupName;
+    GroupData gd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -45,6 +47,8 @@ public class StudyGroupActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         groupName = intent.getStringExtra("com.example.studybuddy.GROUPNAME");
+        //gd = new GroupData("groupName", true);
+
         TextView tv = findViewById(R.id.group_name);
         tv.setText(groupName);
 
