@@ -71,12 +71,15 @@ public class StudyGroupActivity extends AppCompatActivity
                 if (item.getItemId() == R.id.chat) {
                     intent = new Intent(StudyGroupActivity.this, GroupChatActivity.class);
                     intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
+                    startActivity(intent);
                 } else if (item.getItemId() == R.id.calendar) {
                     intent = new Intent(StudyGroupActivity.this, Calendar.class);
                     intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
+                    startActivity(intent);
                 } else if (item.getItemId() == R.id.resources) {
                     intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
                     intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
+                    startActivity(intent);
                 }
                 return true;
             }
