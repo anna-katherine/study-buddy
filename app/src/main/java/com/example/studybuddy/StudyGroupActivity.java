@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 public class StudyGroupActivity extends AppCompatActivity
 {
+    String groupName;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -32,6 +34,11 @@ public class StudyGroupActivity extends AppCompatActivity
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Intent intent = getIntent();
+        groupName = intent.getStringExtra("com.example.studybuddy.GROUPNAME");
+        TextView tv = findViewById(R.id.group_name);
+        tv.setText(groupName);
 
         // Placeholders
         ListView lv = findViewById(R.id.memberList);
@@ -60,13 +67,16 @@ public class StudyGroupActivity extends AppCompatActivity
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item)
             {
-
+                Intent intent;
                 if (item.getItemId() == R.id.chat) {
-                    startActivity(new Intent(StudyGroupActivity.this, GroupChatActivity.class));
+                    intent = new Intent(StudyGroupActivity.this, GroupChatActivity.class);
+                    intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
                 } else if (item.getItemId() == R.id.calendar) {
-                    startActivity(new Intent(StudyGroupActivity.this, Calendar.class));
+                    intent = new Intent(StudyGroupActivity.this, Calendar.class);
+                    intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
                 } else if (item.getItemId() == R.id.resources) {
-                    startActivity(new Intent(StudyGroupActivity.this, ResourceActivity.class));
+                    intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                    intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
                 }
                 return true;
             }
