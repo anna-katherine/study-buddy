@@ -368,4 +368,52 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void joinGroup(String groupName){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference group = db.collection("groups").document(groupName);
+
+        //Add group to database
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(group);
+                ArrayList<String> newList = (ArrayList<String>) snapshot.get("memberList");
+                newList.add(user.getUid());
+                transaction.update(group, "memberList", newList);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Transaction failure.", e);
+            }
+        });
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(userDoc);
+                ArrayList<String> newList = (ArrayList<String>) snapshot.get("groupList");
+                newList.add(groupName);
+                transaction.update(userDoc, "groupList", newList);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+                fetchUserData(user.getUid());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Transaction failure.", e);
+            }
+        });
+    }
 }

@@ -123,6 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             Toast.LENGTH_SHORT).show();
 
                                     Intent intent = new Intent(RegisterActivity.this, EnrolledClassesActivity.class);
+                                    intent.putExtra("com.example.studybuddy.COURSES", selectedCourses);
                                     startActivity(intent);
 
                                 } else {

@@ -9,6 +9,7 @@ import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,16 +23,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class EnrolledClassesActivity extends AppCompatActivity {
     FirebaseUser user;
     FirebaseFirestore db;
+    ArrayList<String> items;
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +60,20 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document != null && document.exists()) {
                         //if it exists, no need to create it.
+                        fetchUserData(user.getUid());
                     }
                     else {
                         // Group does not exist, create it
+                        Intent intent = getIntent();
+                        ArrayList<String> courseList = intent.getStringArrayListExtra("com.example.studybuddy.COURSES");
                         Map<String, Object> userInfo = new HashMap<>();
                         userInfo.put("groupList", new ArrayList<>());
                         userInfo.put("displayName", user.getDisplayName());
+                        userInfo.put("courseList", courseList);
                         userDoc.set(userInfo);
+                        items.clear();
+                        items.addAll(courseList);
+                        adapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -68,13 +81,13 @@ public class EnrolledClassesActivity extends AppCompatActivity {
 
         // some code here to add the courses to the ListView (this is filler @Alex)
         ListView lv = findViewById(R.id.courseList);
-        ArrayList<String> items = new ArrayList<>();
+        items = new ArrayList<>();
         items.add("Course 1");
         items.add("Course 2");
         items.add("Course 3");
         items.add("Course 4");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lv.setAdapter(adapter);
 
         // navigate to dashboard page
@@ -91,11 +104,24 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                     FirebaseAuth.getInstance().signOut();
                     Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
                     startActivity(intent);
-                    finish();
                 }
                 return true;
             }
         });
 
+    }
+    private void fetchUserData(String userID) {
+        // Reference to the user document
+        DocumentReference userRef = db.collection("users").document(userID);
+
+        // Fetch the document
+        userRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e){
+                items.clear();
+                items.addAll((ArrayList<String>)documentSnapshot.get("courseList"));
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 }
