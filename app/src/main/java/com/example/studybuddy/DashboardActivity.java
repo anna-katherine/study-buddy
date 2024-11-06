@@ -68,6 +68,24 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
+        lv.setOnItemLongClickListener((parent, view, position, id) -> {
+            new AlertDialog.Builder(DashboardActivity.this)
+                .setTitle("Delete Item")
+                .setMessage("Are you sure you want to delete this item?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    items.remove(position);
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(DashboardActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+                    // Add Firebase implementation here @Alex
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    // Do nothing
+                    dialog.dismiss();
+                })
+                .show();
+                return true;
+        });
+
         checkedGroups = new boolean[groupList.length];
         Button joinGroupButton = findViewById(R.id.joinGroupButton);
         joinGroupButton.setOnClickListener(new View.OnClickListener() {
