@@ -330,7 +330,6 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "Transaction success!");
-                fetchUserData(user.getUid());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -348,7 +347,7 @@ public class DashboardActivity extends AppCompatActivity {
                 newList.remove(user.getUid());
 
                 //If nobody is in the group, just delete it.
-                if (newList.size() == 0){
+                if (newList.isEmpty()){
                     transaction.delete(groupDoc);
                 }
                 else {
