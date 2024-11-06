@@ -63,6 +63,7 @@ public class DashboardActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
             {
                 Intent intent = new Intent(DashboardActivity.this, StudyGroupActivity.class);
+                intent.putExtra("com.example.studybuddy.GROUPNAME", adapter.getItem(i));
                 startActivity(intent);
             }
         });

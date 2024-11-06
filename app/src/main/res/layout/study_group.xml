@@ -22,6 +22,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/group_name"
                 android:text="@string/group_title"
                 android:layout_gravity="center_horizontal"
                 android:textStyle="bold"

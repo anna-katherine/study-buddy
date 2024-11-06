@@ -1,5 +1,6 @@
 package com.example.studybuddy;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -20,5 +21,9 @@ public class GroupChatActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        //FIXME Now need to find groupName in Firebase database and use it to get past chat history.
+        Intent intent = getIntent();
+        String groupName = intent.getStringExtra("com.example.studybuddy.GROUPNAME");
     }
 }
