@@ -346,14 +346,20 @@ public class DashboardActivity extends AppCompatActivity {
                 DocumentSnapshot snapshot = transaction.get(groupDoc);
                 ArrayList<String> newList = (ArrayList<String>) snapshot.get("memberList");
                 newList.remove(user.getUid());
-                transaction.update(groupDoc, "memberList", newList);
+
+                //If nobody is in the group, just delete it.
+                if (newList.size() == 0){
+                    transaction.delete(groupDoc);
+                }
+                else {
+                    transaction.update(groupDoc, "memberList", newList);
+                }
                 return null;
             }
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "Transaction success!");
-                fetchUserData(user.getUid());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
