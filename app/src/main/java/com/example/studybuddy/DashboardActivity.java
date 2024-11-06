@@ -314,6 +314,7 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     });
         }
+        createdGroup = true;
     }
 
     private void removeGroup(String name){
