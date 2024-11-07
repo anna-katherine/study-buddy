@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 
+
 public class GroupChatActivity extends AppCompatActivity {
 
     @Override

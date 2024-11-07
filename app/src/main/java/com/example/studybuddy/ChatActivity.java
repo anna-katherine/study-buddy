@@ -17,7 +17,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class ChatActivity extends AppCompatActivity {
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.util.List;
+
+public class
+ChatActivity extends AppCompatActivity {
 
     private ListView chatMessagesListView;
     private ChatMessageAdapter adapter;
