@@ -6,12 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,10 +23,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+
 public class ResourceActivity extends AppCompatActivity {
 
     private Uri fileUri;
     private AlertDialog dialog;
+    private ListView resourceLV;
+    private ArrayList<String> resourceNames;
+    private ArrayAdapter<String> arrayAdapter;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -46,7 +53,52 @@ public class ResourceActivity extends AppCompatActivity {
                 createDialog();
             }
         });
+
+        resourceLV = findViewById(R.id.resourceList);
+        resourceNames = new ArrayList<>();
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, resourceNames);
+        resourceLV.setAdapter(arrayAdapter);
+
+        resourceNames.add("Sample Resource");
+        arrayAdapter.notifyDataSetChanged();
+
+        resourceLV.setOnItemClickListener((parent, view, position, id) -> {
+            String resourceName = resourceNames.get(position);
+            downloadResource(resourceName);
+        });
+
+        searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                arrayAdapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
     }
+
+    private void downloadResource(String resourceName) {
+
+        // do Firebase fetch here to get the resources
+        Uri fileUri = Uri.parse("your_file_uri_here");
+
+        new AlertDialog.Builder(this)
+            .setTitle("Download Resource")
+            .setMessage("Do you want to download " + resourceName + "?")
+            .setPositiveButton("Download", (dialog, which) -> {
+                // downloadFile(fileUri);
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
 
     private void createDialog()
     {
@@ -76,8 +128,12 @@ public class ResourceActivity extends AppCompatActivity {
             String description = descriptionEditText.getText().toString();
             String category = categoryEditText.getText().toString();
 
-            if (fileUri != null) {
-                // Implement the upload logic here (e.g., upload to Firebase)
+            if (fileUri != null)
+            {
+                Log.d("ResourceActivity", "File uploaded: " + fileName);
+                resourceNames.add(fileName);
+                arrayAdapter.notifyDataSetChanged();
+                // Firebase implementation here eventually
                 Toast.makeText(this, "File uploaded", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Please select a file first.", Toast.LENGTH_SHORT).show();
