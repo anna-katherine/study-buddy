@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -46,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     // Variables for enrolled courses selection @Alex change these if needed
-    private String[] courses = {"Course 1: Math", "Course 2: English", "Course 3: History", "Course 4: Biology", "Course 5: Data Structures"};
+    private String[] courses = {"Course 1: Math", "Course 2: English", "Course 3: History", "Course 4: Human Biology", "Course 5: Data Structures"};
     private boolean[] selectedItems = new boolean[courses.length];
     private ArrayList<String> selectedCourses = new ArrayList<>();
 
@@ -96,7 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
                 if (TextUtils.isEmpty(lastname)){
-                    Toast.makeText(RegisterActivity.this, "Enter first name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Enter last name", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -110,13 +111,33 @@ public class RegisterActivity extends AppCompatActivity {
 
                                     //Display name will now be email name before '@' character
                                     FirebaseUser user = mAuth.getCurrentUser();
+                                    String displayName = "";
                                     if (user != null){
-                                        String displayName = String.valueOf(fName.getText());
+                                        displayName = String.valueOf(fName.getText());
                                         char lastInit = String.valueOf(lName.getText()).toUpperCase().charAt(0);
                                         displayName += " " + lastInit;
                                         UserProfileChangeRequest updateName = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(displayName).build();
-                                        user.updateProfile(updateName);
+                                        String finalDisplayName = displayName;
+                                        user.updateProfile(updateName)
+                                                .addOnCompleteListener(task2 -> {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("Firebase", "Display name updated in Firebase Auth");
+
+                                                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                                        DocumentReference userRef = db.collection("users").document(user.getUid());
+
+                                                        Map<String, Object> userData = new HashMap<>();
+                                                        userData.put("displayName", finalDisplayName);
+
+                                                        userRef.update(userData)
+                                                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Display name updated in Firestore"))
+                                                                .addOnFailureListener(e -> Log.w("FirestoreError", "Error updating display name in Firestore", e));
+                                                    } else {
+                                                        Log.w("FirebaseError", "Error updating display name in Firebase Auth", task.getException());
+                                                    }
+                                                });
+
                                     }
 
                                     Toast.makeText(RegisterActivity.this, "User created.",

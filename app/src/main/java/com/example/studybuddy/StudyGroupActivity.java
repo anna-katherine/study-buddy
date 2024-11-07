@@ -6,9 +6,12 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -21,11 +24,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class StudyGroupActivity extends AppCompatActivity
 {
@@ -55,11 +66,66 @@ public class StudyGroupActivity extends AppCompatActivity
         // Placeholders
         ListView lv = findViewById(R.id.memberList);
         ArrayList<String> items = new ArrayList<>();
-        items.add("Member 1");
-        items.add("Member 2");
-        items.add("Member 3");
-        items.add("Member 4");
-        items.add("Member 5");
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String groupId = groupName;  // Replace with the actual group ID or any identifier for your group
+        DocumentReference groupRef = db.collection("groups").document(groupId);
+
+        // Fetch the group document from Firestore
+        groupRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Retrieve the memberList from the document
+                        List<String> memberList = (List<String>) document.get("memberList");
+
+                        if (memberList != null && !memberList.isEmpty()) {
+                            // Loop through each member ID and fetch their displayName from Firestore
+                            for (String memberId : memberList) {
+                                // Firebase reference to the users collection
+                                DocumentReference userRef = db.collection("users").document(memberId);
+
+                                // Fetch the user document from Firestore
+                                userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if (userDoc.exists()) {
+                                                // Retrieve the displayName of the user
+                                                String userName = userDoc.getString("displayName");
+
+                                                // Add the userName to the list if it's not null
+                                                if (userName != null) {
+                                                    items.add(userName);  // Add the member's name to the list
+                                                }
+
+                                                // Once all members have been processed, update the ListView
+                                                if (items.size() == memberList.size()) {
+                                                    ArrayAdapter<String> adapter = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items);
+                                                    lv.setAdapter(adapter);
+                                                    Log.d("Firebase", "Member List: " + items.toString());
+                                                }
+                                            }
+                                        } else {
+                                            Log.w("FirebaseError", "Error fetching user data", task.getException());
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            Log.d("Firebase", "No members found in the group.");
+                        }
+                    } else {
+                        Log.d("Firebase", "Group document does not exist.");
+                    }
+                } else {
+                    Log.w("FirebaseError", "Error getting group data", task.getException());
+                }
+            }
+        });
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lv.setAdapter(adapter);
 
@@ -71,6 +137,16 @@ public class StudyGroupActivity extends AppCompatActivity
         items2.add("Session 3");
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items2);
         lv2.setAdapter(adapter2);
+
+        Button resourceButton = findViewById(R.id.resources);
+        resourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Move to Resources page
+                Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Navigation functionalities
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
