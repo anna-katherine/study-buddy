@@ -46,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     // Variables for enrolled courses selection @Alex change these if needed
-    private String[] courses = {"Course 1: Math", "Course 2: English", "Course 3: History", "Course 4: Biology", "Course 5: Data Structures"};
+    private String[] courses = {"Course 1: Math", "Course 2: English", "Course 3: History", "Course 4: Human Biology", "Course 5: Data Structures"};
     private boolean[] selectedItems = new boolean[courses.length];
     private ArrayList<String> selectedCourses = new ArrayList<>();
 
@@ -96,7 +96,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
                 if (TextUtils.isEmpty(lastname)){
-                    Toast.makeText(RegisterActivity.this, "Enter first name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Enter last name", Toast.LENGTH_SHORT).show();
                     return;
                 }
 

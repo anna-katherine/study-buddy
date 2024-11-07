@@ -22,7 +22,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity {
+public class
+ChatActivity extends AppCompatActivity {
 
     private ListView chatMessagesListView;
     private ChatMessageAdapter adapter;
