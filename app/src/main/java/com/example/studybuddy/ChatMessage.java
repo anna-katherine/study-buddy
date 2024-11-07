@@ -1,12 +1,14 @@
 package com.example.studybuddy;
 
-public class ChatMessage {
-    private String messageText;
-    private String timestamp;
-    private String senderName;
-    private boolean isFromMe; // Flag to indicate if the message is from you
+import com.google.firebase.Timestamp;
 
-    public ChatMessage(String messageText, String timestamp, String senderName, boolean isFromMe) {
+public class ChatMessage {
+    String messageText;
+    Timestamp timestamp;
+    String senderName;
+    boolean isFromMe; // Flag to indicate if the message is from you
+
+    public ChatMessage(String messageText, Timestamp timestamp, String senderName, boolean isFromMe) {
         this.messageText = messageText;
         this.timestamp = timestamp;
         this.senderName = senderName;
@@ -17,7 +19,7 @@ public class ChatMessage {
         return messageText;
     }
 
-    public String getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
@@ -27,5 +29,17 @@ public class ChatMessage {
 
     public boolean isFromMe() {
         return isFromMe;
+    }
+
+    public void setMessage(String message) {
+        this.messageText = message;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 import androidx.annotation.NonNull;
+import com.google.firebase.Timestamp;
 
 public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
@@ -33,7 +34,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
         assert message != null;
         senderNameTextView.setText(message.getSenderName());
         messageTextView.setText(message.getMessageText());
-        timestampTextView.setText(message.getTimestamp());
+        timestampTextView.setText(message.getTimestamp().toString());
 
         // Align message based on who sent it
         if (message.isFromMe()) {

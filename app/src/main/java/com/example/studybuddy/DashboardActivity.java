@@ -54,7 +54,7 @@ import java.util.Map;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    ArrayList<String> groupList = new ArrayList<>(Collections.singletonList(" "));;
+    ArrayList<String> groupList = new ArrayList<>(Collections.singletonList(" "));
     FirebaseAuth auth;
     FirebaseUser user;
     FirebaseFirestore db;
@@ -70,8 +70,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
         return result;
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +114,7 @@ public class DashboardActivity extends AppCompatActivity {
                     items.remove(position);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(DashboardActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
-                    // Add Firebase implementation here @Alex
+                    //Remove user from group in Firebase
                     removeGroup(remove);
 
                 })
