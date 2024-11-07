@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -67,6 +69,16 @@ public class StudyGroupActivity extends AppCompatActivity
         items2.add("Session 3");
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items2);
         lv2.setAdapter(adapter2);
+
+        Button resourceButton = findViewById(R.id.resources);
+        resourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Move to Resources page
+                Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Navigation functionalities
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
