@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -190,6 +192,19 @@ public class StudyGroupActivity extends AppCompatActivity
                 Log.w("FirebaseError", "Error getting group data", task.getException());
             }
         });
+
+
+        Button resourceButton = findViewById(R.id.resources);
+        resourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Move to Resources page
+                Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // Navigation functionalities
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener()
