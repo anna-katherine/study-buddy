@@ -12,6 +12,7 @@
 
     <ScrollView
         android:id="@+id/scrollView"
+        android:fillViewport="true"
         android:layout_above="@id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -46,23 +47,23 @@
                 android:id="@+id/memberList"
                 android:layout_marginVertical="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"/>
+                android:layout_height="200dp"/>
 
             <TextView
-                android:text="@string/upcoming_study_sessions"
-                android:layout_gravity="center_horizontal"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:layout_marginVertical="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="10dp"
+                android:gravity="center"
+                android:text="@string/upcoming_study_sessions"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <ListView
                 android:id="@+id/sessionList"
                 android:layout_marginVertical="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"/>
+                android:layout_height="500dp"/>
         </LinearLayout>
     </ScrollView>
 
