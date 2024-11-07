@@ -33,7 +33,7 @@
             android:name=".GroupChatActivity"
             android:exported="false" />
         <activity
-            android:name=".Calendar"
+            android:name=".CalendarActivity"
             android:exported="false" />
         <activity
             android:name=".ResourceActivity"

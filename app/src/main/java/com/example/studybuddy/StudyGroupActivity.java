@@ -218,7 +218,7 @@ public class StudyGroupActivity extends AppCompatActivity
                     intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
                     startActivity(intent);
                 } else if (item.getItemId() == R.id.calendar) {
-                    intent = new Intent(StudyGroupActivity.this, Calendar.class);
+                    intent = new Intent(StudyGroupActivity.this, CalendarActivity.class);
                     intent.putExtra("com.example.studybuddy.GROUPNAME", groupName);
                     startActivity(intent);
                 } else if (item.getItemId() == R.id.create) {
