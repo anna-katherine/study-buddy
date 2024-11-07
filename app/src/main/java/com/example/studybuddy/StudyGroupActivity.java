@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -98,15 +99,13 @@ public class StudyGroupActivity extends AppCompatActivity
                                         if (task.isSuccessful()) {
                                             DocumentSnapshot userDoc = task.getResult();
                                             if (userDoc.exists()) {
-                                                // Retrieve the displayName of the user
                                                 String userName = userDoc.getString("displayName");
 
-                                                // Add the userName to the list if it's not null
                                                 if (userName != null) {
                                                     items.add(userName);  // Add the member's name to the list
                                                 }
 
-                                                // Once all members have been processed, update the ListView
+
                                                 if (items.size() == memberList.size()) {
                                                     ArrayAdapter<String> adapter = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items);
                                                     lv.setAdapter(adapter);
@@ -160,12 +159,22 @@ public class StudyGroupActivity extends AppCompatActivity
                                         String location = sessionDoc.getString("location");
                                         String date = sessionDoc.getString("date");
 
-                                        // Format the session details
+                                        ArrayList<String> members = (ArrayList<String>) sessionDoc.get("members");
+                                        String membersString = "";
+
+                                        if (members != null && !members.isEmpty()) {
+                                            membersString = TextUtils.join(", ", members);
+                                            Log.d("Firebase", "Members: " + membersString);
+                                        } else {
+                                            Log.d("Firebase", "No members in this session.");
+                                        }
+
                                         String sessionDetails = "\n" + "Name: " + sessionName + "\n" +
                                                  date + "\n" +
                                                  startTime + "\n" +
                                                  endTime + "\n" +
-                                                "Location: " + location + "\n";
+                                                "Location: " + location + "\n" +
+                                                "Members: " + membersString;
 
                                         // Add the formatted session details to the list
                                         items2.add(sessionDetails);
@@ -295,6 +304,10 @@ public class StudyGroupActivity extends AppCompatActivity
         dialogLayout.addView(titleInput);
         dialogLayout.addView(locationInput);
 
+        List<String> membersList = new ArrayList<>();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userName = user.getDisplayName();
+        membersList.add(userName);
 
         builder.setView(dialogLayout);
 
@@ -312,6 +325,7 @@ public class StudyGroupActivity extends AppCompatActivity
             sessionData.put("startTime", startTime);
             sessionData.put("endTime", endTime);
             sessionData.put("groupName", groupName);
+            sessionData.put("members", membersList);
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -319,7 +333,6 @@ public class StudyGroupActivity extends AppCompatActivity
                     .addOnSuccessListener(documentReference -> {
                         Log.d("Firebase", "Session created with ID: " + documentReference.getId());
 
-                        // Once session is created, retrieve the group document
                         DocumentReference groupRef = db.collection("groups").document(groupName);
                         groupRef.update("sessionList", FieldValue.arrayUnion(documentReference.getId()))
                                 .addOnSuccessListener(aVoid -> {
