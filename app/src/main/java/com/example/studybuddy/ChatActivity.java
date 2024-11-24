@@ -63,6 +63,9 @@ ChatActivity extends AppCompatActivity {
         groupChatName = intent.getStringExtra("com.example.studybuddy.GROUPCHATNAME");
 
         chatMessages = (ArrayList<ChatMessage>) intent.getSerializableExtra("com.example.studybuddy.CHATLOGS");
+        if (chatMessages == null){
+            chatMessages = new ArrayList<ChatMessage>();
+        }
         adapter = new ChatMessageAdapter(this, chatMessages);
         chatMessagesListView.setAdapter(adapter);
 
