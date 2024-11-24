@@ -11,5 +11,5 @@
     <item
         android:id="@+id/create"
         android:title="Create Session"
-        android:icon="@drawable/baseline_attach_file_24"/>
+        android:icon="@drawable/baseline_add_24"/>
 </menu>
