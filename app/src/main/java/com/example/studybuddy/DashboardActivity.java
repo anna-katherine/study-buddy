@@ -54,7 +54,7 @@ import java.util.Map;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    ArrayList<String> groupList = new ArrayList<>(Collections.singletonList(" "));;
+    ArrayList<String> groupList = new ArrayList<>(Collections.singletonList(" "));
     FirebaseAuth auth;
     FirebaseUser user;
     FirebaseFirestore db;
@@ -71,10 +71,15 @@ public class DashboardActivity extends AppCompatActivity {
         return result;
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        userDoc = db.collection("users").document(user.getUid());
+        groupCol = db.collection("groups");
+        auth = FirebaseAuth.getInstance();
+
+        initializeGroupList();
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.dashboard);
@@ -84,10 +89,7 @@ public class DashboardActivity extends AppCompatActivity {
             return insets;
         });
 
-        db = FirebaseFirestore.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        userDoc = db.collection("users").document(user.getUid());
-        groupCol = db.collection("groups");
+
 
         ListView lv = findViewById(R.id.groupList);
         items = new ArrayList<>();
@@ -116,7 +118,7 @@ public class DashboardActivity extends AppCompatActivity {
                     items.remove(position);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(DashboardActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
-                    // Add Firebase implementation here @Alex
+                    //Remove user from group in Firebase
                     removeGroup(remove);
 
                 })
@@ -132,7 +134,11 @@ public class DashboardActivity extends AppCompatActivity {
         joinGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                joinDialog();
+                if (groupList.isEmpty()) {
+                    initializeGroupListAndShowDialog();
+                } else {
+                    joinDialog();
+                }
             }
         });
 
@@ -145,7 +151,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         //Display user's email (for now, can change to username maybe)
-        auth = FirebaseAuth.getInstance();
+
         TextView tv = findViewById(R.id.user_details);
         user = auth.getCurrentUser();
         if (user == null){
@@ -180,10 +186,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    private void joinDialog()
-    {
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    private void initializeGroupList() {
+        String userID = auth.getCurrentUser().getUid();
         CollectionReference groupsRef = db.collection("groups");
 
         groupsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -192,7 +196,6 @@ public class DashboardActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     groupList.clear(); // Clear the list before adding new data
                     for (QueryDocumentSnapshot document : task.getResult()) {
-
                         String groupName = document.getString("name");
                         List<String> memberList = (List<String>) document.get("memberList");
 
@@ -200,19 +203,17 @@ public class DashboardActivity extends AppCompatActivity {
                             groupList.add(groupName); // Add group name to the list if user is not a member
                         }
                     }
-
-                    if (adapter != null) {
-                        fetchUserData(user.getUid());
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    // Log the final group list
-                    Log.d("Firebase", "Group List (excluding user groups): " + groupList.toString());
+                    Log.d("Firebase", "Group List initialized: " + groupList);
                 } else {
-                    Log.w("FirebaseError", "Error getting groups", task.getException());
+                    Log.w("FirebaseError", "Error initializing group list", task.getException());
                 }
             }
         });
+    }
+
+    private void joinDialog() {
+        String userID = auth.getCurrentUser().getUid();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         List<Boolean> checkedGroups = new ArrayList<>(Collections.nCopies(groupList.size(), Boolean.FALSE));
 
@@ -226,83 +227,13 @@ public class DashboardActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        // Gather the selected groups
                         List<String> selectedGroups = new ArrayList<>();
                         for (int i = 0; i < groupList.size(); i++) {
                             if (checkedGroups.get(i)) {
                                 selectedGroups.add(groupList.get(i));
                             }
                         }
-
-                        if (!selectedGroups.isEmpty()) {
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            DocumentReference userRef = db.collection("users").document(userID);
-
-                            // Get the current group list from the user document
-                            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
-                                            List<String> currentGroupList = (List<String>) document.get("groupList");
-                                            if (currentGroupList == null) {
-                                                currentGroupList = new ArrayList<>();
-                                            }
-                                            // Add the new groups to the user's current groupList
-                                            currentGroupList.addAll(selectedGroups);
-
-                                            // Update the user's groupList in Firestore
-                                            userRef.update("groupList", currentGroupList)
-                                                    .addOnSuccessListener(aVoid -> Log.d("Firebase", "User's group list updated successfully"))
-                                                    .addOnFailureListener(e -> Log.w("FirebaseError", "Error updating group list", e));
-                                            // Iterate over selected groups and update their member lists
-                                            for (String groupName : selectedGroups) {
-                                                // Get the group document by name
-                                                CollectionReference groupsRef = db.collection("groups");
-                                                groupsRef.whereEqualTo("name", groupName).get()
-                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                                                                    // Successfully fetched the query results
-                                                                    QuerySnapshot querySnapshot = task.getResult();
-                                                                    for (QueryDocumentSnapshot groupDoc : querySnapshot) {
-
-                                                                        List<String> memberList = (List<String>) groupDoc.get("memberList");
-
-                                                                        if (memberList == null) {
-                                                                            memberList = new ArrayList<>();
-                                                                        }
-
-                                                                        // Add the user to the member list if they are not already included
-                                                                        if (!memberList.contains(userID)) {
-                                                                            memberList.add(userID);
-
-                                                                            // Update the group document's memberList with the new list
-                                                                            groupDoc.getReference().update("memberList", memberList)
-                                                                                    .addOnSuccessListener(aVoid -> Log.d("Firebase", "Group's member list updated successfully"))
-                                                                                    .addOnFailureListener(e -> Log.w("FirebaseError", "Error updating member list", e));
-                                                                        }
-                                                                    }
-                                                                } else {
-                                                                    Log.w("FirebaseError", "Error fetching group data", task.getException());
-                                                                }
-                                                            }
-                                                        });
-                                            }
-                                        }
-                                    } else {
-                                        Log.w("FirebaseError", "Error fetching user data", task.getException());
-                                    }
-                                }
-                            });
-                        }
-                        if (adapter != null) {
-                            fetchUserData(user.getUid());
-                            adapter.notifyDataSetChanged();
-                        }
-
+                        handleGroupSelection(selectedGroups, userID);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -314,29 +245,78 @@ public class DashboardActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
-
     }
 
-//    private void getGroupsToJoin(ArrayList<String> groupList)
-//    {
-//        CollectionReference groupsRef = db.collection("groups");
-//
-//        groupsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                        String groupName = document.getString("name");
-//                        groupList.add(groupName);
-//                    }
-//                    }
-//                } else {
-//                    Log.w("FirebaseError", "Error getting groups", task.getException());
-//                }
-//            }
-//        });
-//
-//    }
+    private void handleGroupSelection(List<String> selectedGroups, String userID) {
+        if (!selectedGroups.isEmpty()) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users").document(userID);
+
+            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // Fetch the current group list
+                            List<String> currentGroupList = (List<String>) document.get("groupList");
+                            if (currentGroupList == null) {
+                                currentGroupList = new ArrayList<>();
+                            }
+
+                            // Create a new list with the updated groups
+                            List<String> updatedGroupList = new ArrayList<>(currentGroupList);
+                            updatedGroupList.addAll(selectedGroups);
+
+
+                            userRef.update("groupList", updatedGroupList)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("Firebase", "User's group list updated successfully");
+                                        refreshGroupListUI(updatedGroupList);
+                                    })
+                                    .addOnFailureListener(e -> Log.w("FirebaseError", "Error updating group list", e));
+
+                            for (String groupName : selectedGroups) {
+                                updateGroupMemberList(groupName, userID);
+                            }
+                        }
+                    } else {
+                        Log.w("FirebaseError", "Error fetching user data", task.getException());
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateGroupMemberList(String groupName, String userID) {
+        db.collection("groups").whereEqualTo("name", groupName).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            for (QueryDocumentSnapshot groupDoc : querySnapshot) {
+                                List<String> memberList = (List<String>) groupDoc.get("memberList");
+                                if (memberList == null) {
+                                    memberList = new ArrayList<>();
+                                }
+                                if (!memberList.contains(userID)) {
+                                    memberList.add(userID);
+                                    groupDoc.getReference().update("memberList", memberList)
+                                            .addOnSuccessListener(aVoid -> Log.d("Firebase", "Group's member list updated successfully"))
+                                            .addOnFailureListener(e -> Log.w("FirebaseError", "Error updating member list", e));
+                                }
+                            }
+                        } else {
+                            Log.w("FirebaseError", "Error fetching group data", task.getException());
+                        }
+                    }
+                });
+    }
+
+
+
+
 
     private void createDialog() {
         LayoutInflater inflater = getLayoutInflater();
@@ -356,10 +336,9 @@ public class DashboardActivity extends AppCompatActivity {
                         List<String> courseList = (List<String>) document.get("courseList");
 
                         if (courseList != null && !courseList.isEmpty()) {
-                            // Convert the course list to a String[] array
                             String[] items = courseList.toArray(new String[0]);
 
-                            // Use the correct context here (YourActivityName.this)
+
                             ArrayAdapter<String> adapter = new ArrayAdapter<>(DashboardActivity.this, android.R.layout.simple_spinner_item, courseList);
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             dropdownSpinner.setAdapter(adapter);
@@ -541,51 +520,36 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
+    private void refreshGroupListUI(List<String> updatedGroupList) {
+        items.clear();
+        items.addAll(updatedGroupList);
+        adapter.notifyDataSetChanged();
+        Log.d("UI", "Group list UI updated successfully");
+    }
 
-    private void joinGroup(String groupName){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference group = db.collection("groups").document(groupName);
 
-        //Add group to database
-        db.runTransaction(new Transaction.Function<Void>() {
+    private void initializeGroupListAndShowDialog() {
+        String userID = auth.getCurrentUser().getUid();
+        CollectionReference groupsRef = db.collection("groups");
+
+        groupsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(group);
-                ArrayList<String> newList = (ArrayList<String>) snapshot.get("memberList");
-                newList.add(user.getUid());
-                transaction.update(group, "memberList", newList);
-                return null;
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "Transaction success!");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Transaction failure.", e);
-            }
-        });
-        db.runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(userDoc);
-                ArrayList<String> newList = (ArrayList<String>) snapshot.get("groupList");
-                newList.add(groupName);
-                transaction.update(userDoc, "groupList", newList);
-                return null;
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "Transaction success!");
-                fetchUserData(user.getUid());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Transaction failure.", e);
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    groupList.clear(); // Clear the list before adding new data
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String groupName = document.getString("name");
+                        List<String> memberList = (List<String>) document.get("memberList");
+
+                        if (groupName != null && (memberList == null || !memberList.contains(userID))) {
+                            groupList.add(groupName);
+                        }
+                    }
+                    // Once groupList is populated, show the dialog
+                    joinDialog();
+                } else {
+                    Log.w("FirebaseError", "Error fetching group list", task.getException());
+                }
             }
         });
     }
