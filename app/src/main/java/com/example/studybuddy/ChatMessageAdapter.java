@@ -38,8 +38,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
         messageTextView.setText(message.getMessageText());
 
         //Set the date and time of message.
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, K:mma");
-        String date = sdf.format(message.getTimestamp().toDate());
+        String date = getDateFromTimestamp(message.getTimestamp());
         timestampTextView.setText(date);
 
         // Align message based on who sent it
@@ -54,5 +53,11 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
         senderNameTextView.setGravity(Gravity.START);
 
         return convertView;
+    }
+
+    public static String getDateFromTimestamp(Timestamp t){
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mma");
+        String date = sdf.format(t.toDate());
+        return date;
     }
 }
