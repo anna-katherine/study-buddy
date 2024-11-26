@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -414,6 +415,12 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void createGroup(String groupName, String selectedOption){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (Objects.equals(groupName, "") || groupName == null)
+        {
+            Toast.makeText(DashboardActivity.this, "No group name provided", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         DocumentReference group = db.collection("groups").document(groupName);
 
         //Add group to database
