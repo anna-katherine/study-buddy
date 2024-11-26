@@ -34,6 +34,8 @@ public class CreateStudyGroupInstrumentedTest
     public ActivityScenarioRule<DashboardActivity> activityRule =
             new ActivityScenarioRule<>(DashboardActivity.class);
 
+
+    @Before
     public void signInUser() throws InterruptedException {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         CountDownLatch latch = new CountDownLatch(1);

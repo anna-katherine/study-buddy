@@ -2,6 +2,7 @@ package com.example.studybuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.text.TextUtils;
 import android.view.View;
@@ -52,8 +53,10 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
                 String username, password;
-                username = String.valueOf(editTextUsername.getText());
-                password = String.valueOf(editTextPassword.getText());
+                username = String.valueOf(editTextUsername.getText()).trim();
+                password = String.valueOf(editTextPassword.getText()).trim();
+
+//                Log.d("LoginActivity", "Username: '" + username + "', Password: '" + password + "'");
 
                 if (TextUtils.isEmpty(username)){
                     progressBar.setVisibility(View.GONE);
