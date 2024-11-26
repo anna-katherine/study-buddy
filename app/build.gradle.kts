@@ -9,12 +9,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.studybuddy"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -33,10 +32,11 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
 }
 
-dependencies {
 
+dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -44,8 +44,14 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.androidXTestRunner)
+    androidTestImplementation(libs.espressoIntents)
+    testImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.android)
 
     testImplementation("org.mockito:mockito-core:5.5.0")
     androidTestImplementation("org.mockito:mockito-android:5.5.0")

@@ -2,6 +2,7 @@ package com.example.studybuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -82,10 +83,6 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         // some code here to add the courses to the ListView (this is filler @Alex)
         ListView lv = findViewById(R.id.courseList);
         items = new ArrayList<>();
-        items.add("Course 1");
-        items.add("Course 2");
-        items.add("Course 3");
-        items.add("Course 4");
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lv.setAdapter(adapter);
