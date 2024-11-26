@@ -34,6 +34,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class LoginInstrumentedTest
 {
+
+    // These tests are all written by Anna Katherine Zhao
+
     private View decorView;
 
     @Rule

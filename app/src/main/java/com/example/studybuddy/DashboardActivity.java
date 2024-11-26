@@ -248,7 +248,7 @@ public class DashboardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void handleGroupSelection(List<String> selectedGroups, String userID) {
+    public void handleGroupSelection(List<String> selectedGroups, String userID) {
         if (!selectedGroups.isEmpty()) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             DocumentReference userRef = db.collection("users").document(userID);
@@ -319,7 +319,7 @@ public class DashboardActivity extends AppCompatActivity {
 
 
 
-    private void createDialog() {
+    public void createDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.create_group_dialog, null);
         Spinner dropdownSpinner = dialogView.findViewById(R.id.dropdown_spinner);
@@ -376,7 +376,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchUserData(String userID) {
+    void fetchUserData(String userID) {
         items.clear();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
