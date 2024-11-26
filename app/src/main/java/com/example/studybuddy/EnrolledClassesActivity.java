@@ -129,9 +129,11 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         userRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e){
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                 items.clear();
                 items.addAll((ArrayList<String>)documentSnapshot.get("courseList"));
                 adapter.notifyDataSetChanged();
+                }
             }
         });
     }
