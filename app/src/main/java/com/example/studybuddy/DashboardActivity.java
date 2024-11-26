@@ -189,6 +189,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void initializeGroupList() {
         String userID = auth.getCurrentUser().getUid();
+
         CollectionReference groupsRef = db.collection("groups");
 
         groupsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 public class ChatMessageAdapterTest {
 
+    //Created by Alex F
     @org.junit.Test
     public void getDateFromTimestampIsCorrect() {
         String expected;
