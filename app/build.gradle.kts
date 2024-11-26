@@ -44,13 +44,16 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.extJunit)
-    androidTestImplementation(libs.espressoCore)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.androidXTestRunner)
     androidTestImplementation(libs.androidXTestRules)
     androidTestImplementation(libs.espressoIntents)
     testImplementation(libs.androidXTestCore)
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
+
 }
 
