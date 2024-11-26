@@ -50,7 +50,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.androidXTestRunner)
     androidTestImplementation(libs.espressoIntents)
-    testImplementation(libs.androidXTestCore)
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
 
