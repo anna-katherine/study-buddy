@@ -13,33 +13,18 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="RegisterPasswordTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="RegisterToEnrolledTest">
+      <SelectionState runConfigName="PathingInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="RegisterEmptyAndDuplicateTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="LogOutTest">
+      <SelectionState runConfigName="RegisterPasswordTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EnrolledToDashboardTest">
+      <SelectionState runConfigName="testSelectedCoursesArePassedToNextActivity()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-        <SelectionState runConfigName="ChatActivityTest">
-            <option name="selectionMode" value="DROPDOWN" />
-        </SelectionState>
-        <SelectionState runConfigName="DashboardActivityInstrumentedTest">
-            <option name="selectionMode" value="DROPDOWN" />
-        </SelectionState>
-        <SelectionState runConfigName="PathingInstrumentedTest">
-            <option name="selectionMode" value="DROPDOWN" />
-        </SelectionState>
-        <SelectionState runConfigName="pathToGroupChats()">
-            <option name="selectionMode" value="DROPDOWN" />
-        </SelectionState>
     </selectionStates>
   </component>
 </project>
