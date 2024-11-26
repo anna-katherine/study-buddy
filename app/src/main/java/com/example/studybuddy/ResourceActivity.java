@@ -135,7 +135,8 @@ public class ResourceActivity extends AppCompatActivity {
                 arrayAdapter.notifyDataSetChanged();
                 // Firebase implementation here eventually
                 Toast.makeText(this, "File uploaded", Toast.LENGTH_SHORT).show();
-            } else {
+            }
+            else {
                 Toast.makeText(this, "Please select a file first.", Toast.LENGTH_SHORT).show();
             }
             dialog.dismiss();
@@ -166,7 +167,7 @@ public class ResourceActivity extends AppCompatActivity {
         }
     }
 
-    private String getFileName(Uri uri) {
+    public String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
             try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
