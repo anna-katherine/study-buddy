@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import androidx.annotation.NonNull;
 import com.google.firebase.Timestamp;
@@ -36,28 +34,17 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
         assert message != null;
         senderNameTextView.setText(message.getSenderName());
         messageTextView.setText(message.getMessageText());
-
-        //Set the date and time of message.
-        String date = getDateFromTimestamp(message.getTimestamp());
-        timestampTextView.setText(date);
+        timestampTextView.setText(message.getTimestamp().toString());
 
         // Align message based on who sent it
-        /*if (message.isFromMe()) {
+        if (message.isFromMe()) {
             messageTextView.setGravity(Gravity.END); // Right-align for messages from you
             senderNameTextView.setGravity(Gravity.END);
         } else {
             messageTextView.setGravity(Gravity.START); // Left-align for messages from others
             senderNameTextView.setGravity(Gravity.START);
-        }*/
-        messageTextView.setGravity(Gravity.START); // Left-align for messages from others
-        senderNameTextView.setGravity(Gravity.START);
+        }
 
         return convertView;
-    }
-
-    public static String getDateFromTimestamp(Timestamp t){
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mma");
-        String date = sdf.format(t.toDate());
-        return date;
     }
 }

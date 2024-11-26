@@ -101,20 +101,9 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                 if (item.getItemId() == R.id.dashboard) {
                     startActivity(new Intent(EnrolledClassesActivity.this, DashboardActivity.class));
                 } else if (item.getItemId() == R.id.log_out) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            FirebaseAuth.getInstance().signOut();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            });
-                        }
-                    }).start();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(EnrolledClassesActivity.this, LoginActivity.class);
+                    startActivity(intent);
                 }
                 return true;
             }

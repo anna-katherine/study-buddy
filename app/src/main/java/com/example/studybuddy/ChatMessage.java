@@ -42,5 +42,4 @@ public class ChatMessage {
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
-
 }
