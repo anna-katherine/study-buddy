@@ -25,7 +25,7 @@
       <SelectionState runConfigName="LogOutTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EnrolledToDashboardTest">
+      <SelectionState runConfigName="DashboardToEnrolledTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

@@ -19,53 +19,43 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
-public class LogOutTest {
+public class DashboardToEnrolledTest {
 
     private FirebaseAuth firebaseAuth;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         firebaseAuth = FirebaseAuth.getInstance();
-    }
 
-    @Test
-    public void testLogoutRedirectsToLoginActivity() throws InterruptedException {
+
         firebaseAuth.signInWithEmailAndPassword("gsianipa@usc.edu", "password")
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = firebaseAuth.getCurrentUser();
-                        if (user != null) {
-                            assertNotNull("User should be logged in", user);
-                            System.out.println("Logged in as: " + user.getEmail());
-
-                            // Proceed with the rest of the test here, inside the successful sign-in callback
-                            runLogoutTest();
-
-                        } else {
-                            System.out.println("User is null, sign-in failed");
-                        }
+                        assertNotNull("User should be logged in", user);
+                        System.out.println("Logged in as: " + user.getEmail());
                     } else {
                         System.out.println("Sign-in failed: " + task.getException().getMessage());
                     }
                 });
-
-        Thread.sleep(5000);
-    }
-
-    private void runLogoutTest() {
+        Thread.sleep(3000);
 
         Intents.init();
+    }
 
-        ActivityScenario.launch(EnrolledClassesActivity.class);
+    @Test
+    public void testNavigationToEnrolledClasses() {
+        // Launch the DashboardActivity after login
+        ActivityScenario.launch(DashboardActivity.class);
 
+        // Simulate clicking on the "courses" item in BottomNavigationView
         Espresso.onView(ViewMatchers.withId(R.id.bottomNavigationView))
                 .perform(ViewActions.click());
 
-        Espresso.onView(ViewMatchers.withId(R.id.log_out))
-                .perform(ViewActions.click());
+        // Verify that the EnrolledClassesActivity is opened
+        intended(hasComponent(EnrolledClassesActivity.class.getName()));
 
-        intended(hasComponent(LoginActivity.class.getName()));
-
+        // Clean up Intents
         Intents.release();
     }
 }

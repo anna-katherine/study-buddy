@@ -33,7 +33,6 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockitoAndroid" }
 androidXTestRunner = { group = "androidx.test", name = "runner", version.ref = "androidXTest" }
 androidXTestCore = { group = "androidx.test.core", name = "core", version.ref = "androidXTest" }
-androidXTestRules = { group = "androidx.test", name = "rules", version.ref = "androidXTest" }
 espressoIntents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version = "5.11.3" }
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }

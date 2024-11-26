@@ -42,62 +42,6 @@ ChatActivity extends AppCompatActivity {
     String groupChatName;
     String user;
 
-
-    /*@Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat);
-        EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        db = FirebaseFirestore.getInstance();
-
-        Intent intent = getIntent();
-
-        chatMessagesListView = findViewById(R.id.chatMessagesListView);
-        EditText editTextMessage = findViewById(R.id.editTextMessage);
-        Button buttonSend = findViewById(R.id.buttonSend);
-
-        groupName = intent.getStringExtra("com.example.studybuddy.GROUPNAME");
-        //groupChatName = intent.getStringExtra("com.example.studybuddy.GROUPCHATNAME");
-
-        chatMessages = new ArrayList<ChatMessage>();
-        adapter = new ChatMessageAdapter(this, chatMessages);
-        chatMessagesListView.setAdapter(adapter);
-
-        List<ChatMessage> OldChatMessages = (ArrayList<ChatMessage>) intent.getSerializableExtra("com.example.studybuddy.CHATLOGS");
-        chatMessages.addAll(OldChatMessages);
-
-        chatMessages.add(new ChatMessage("Hey, how's it going?", Timestamp.now(), "Alice", false)); // Message from Alice
-        //chatMessages.add(new ChatMessage("Good, thanks! How about you?", "10:01", "You", true)); // Your message
-        //chatMessages.add(new ChatMessage("I'm doing well, just working on a project.", "10:02", "Alice", false)); // Message from Alice
-
-        adapter.notifyDataSetChanged();
-
-        String senderName = "You";
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String messageText = editTextMessage.getText().toString().trim();
-                if (!messageText.isEmpty()) {
-                    Timestamp timestamp = Timestamp.now();
-                    ChatMessage newMessage = new ChatMessage(messageText, timestamp, senderName, true); // 'true' for your messages
-                    chatMessages.add(newMessage);
-                    adapter.notifyDataSetChanged();
-                    editTextMessage.setText("");
-                    chatMessagesListView.setSelection(chatMessages.size() - 1);  // Scroll to the bottom
-                    sendMessageToFirestore(groupName, groupChatName, senderName, messageText);
-                }
-            }
-        });
-        Log.d("CHATACTIVE", "WTF???!");
-    }*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,18 +71,22 @@ ChatActivity extends AppCompatActivity {
         chatMessages.add(new ChatMessage("Good, thanks! How about you?", Timestamp.now(), "You", true)); // Your message
         chatMessages.add(new ChatMessage("I'm doing well, just working on a project.", Timestamp.now(), "Alice", false)); // Message from Alice*/
 
-        for (int i = 0; i < chatLogs.size(); i++){
-            HashMap<String, Object> chatInfo = chatLogs.get(i);
-            String messageText = (String) chatInfo.get("messageText");
-            String sender = (String) chatInfo.get("sender");
-            String userID = (String) chatInfo.get("userID");
-            if (userID.equals(user)){
-                sender += " (You)";
+        ArrayList<ChatMessage> logs = setupChatLogs(chatLogs, user);
+        chatMessages.addAll(logs);
+        /*if (chatLogs != null){
+            for (int i = 0; i < chatLogs.size(); i++) {
+                HashMap<String, Object> chatInfo = chatLogs.get(i);
+                String messageText = (String) chatInfo.get("messageText");
+                String sender = (String) chatInfo.get("sender");
+                String userID = (String) chatInfo.get("userID");
+                if (userID.equals(user)) {
+                    sender += " (You)";
+                }
+                Timestamp timestamp = (Timestamp) chatInfo.get("timestamp");
+                ChatMessage message = new ChatMessage(messageText, timestamp, sender, (user.equals(userID)));
+                chatMessages.add(message);
             }
-            Timestamp timestamp = (Timestamp) chatInfo.get("timestamp");
-            ChatMessage message = new ChatMessage(messageText, timestamp, sender, (user.equals(userID)));
-            chatMessages.add(message);
-        }
+        }*/
 
         adapter.notifyDataSetChanged();
 
@@ -148,7 +96,6 @@ ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String messageText = editTextMessage.getText().toString().trim();
                 if (!messageText.isEmpty()) {
-
                     ChatMessage newMessage = new ChatMessage(messageText, Timestamp.now(), senderName + " (You)", true); // 'true' for your messages
                     chatMessages.add(newMessage);
                     adapter.notifyDataSetChanged();
@@ -158,6 +105,29 @@ ChatActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public static ArrayList<ChatMessage> setupChatLogs(ArrayList<HashMap<String, Object>> chatLogs, String username){
+        ArrayList<ChatMessage> logs = new ArrayList<>();
+        if (chatLogs != null){
+            for (int i = 0; i < chatLogs.size(); i++) {
+                HashMap<String, Object> chatInfo = chatLogs.get(i);
+                String messageText = (String) chatInfo.get("messageText");
+                String sender = (String) chatInfo.get("sender");
+                String userID = (String) chatInfo.get("userID");
+                if (username != null){
+                    if (userID != null) {
+                        if (userID.equals(username)) {
+                            sender += " (You)";
+                        }
+                    }
+                }
+                Timestamp timestamp = (Timestamp) chatInfo.get("timestamp");
+                ChatMessage message = new ChatMessage(messageText, timestamp, sender, (username.equals(userID)));
+                logs.add(message);
+            }
+        }
+        return logs;
     }
 
     public void sendMessageToFirestore(String groupId, String groupChatName, String senderName, String message) {
