@@ -25,7 +25,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
@@ -80,34 +79,28 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View view){
                 progressBar.setVisibility(View.VISIBLE);
                 String username, password, firstname, lastname;
-                username = String.valueOf(editTextUsername.getText()).trim();
-                password = String.valueOf(editTextPassword.getText()).trim();
+                username = String.valueOf(editTextUsername.getText());
+                password = String.valueOf(editTextPassword.getText());
                 firstname = String.valueOf(fName.getText());
                 lastname = String.valueOf(lName.getText());
 
-                boolean hasError = false;
-
-                if (TextUtils.isEmpty(username)) {
-                    editTextUsername.setError("Enter username");
-                    hasError = true;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    editTextPassword.setError("Enter password");
-                    hasError = true;
-                }
-                if (TextUtils.isEmpty(firstname)) {
-                    fName.setError("Enter first name");
-                    hasError = true;
-                }
-                if (TextUtils.isEmpty(lastname)) {
-                    lName.setError("Enter last name");
-                    hasError = true;
-                }
-
-                if (hasError) {
-                    progressBar.setVisibility(View.GONE);
+                if (TextUtils.isEmpty(username)){
+                    Toast.makeText(RegisterActivity.this, "Enter username", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (TextUtils.isEmpty(password)){
+                    Toast.makeText(RegisterActivity.this, "Enter password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (TextUtils.isEmpty(firstname)){
+                    Toast.makeText(RegisterActivity.this, "Enter first name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (TextUtils.isEmpty(lastname)){
+                    Toast.makeText(RegisterActivity.this, "Enter last name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
 
                 mAuth.createUserWithEmailAndPassword(username, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -115,9 +108,11 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
+
+                                    //Display name will now be email name before '@' character
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     String displayName = "";
-                                    if (user != null) {
+                                    if (user != null){
                                         displayName = String.valueOf(fName.getText());
                                         char lastInit = String.valueOf(lName.getText()).toUpperCase().charAt(0);
                                         displayName += " " + lastInit;
@@ -126,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         String finalDisplayName = displayName;
                                         user.updateProfile(updateName)
                                                 .addOnCompleteListener(task2 -> {
-                                                    if (task2.isSuccessful()) {
+                                                    if (task.isSuccessful()) {
                                                         Log.d("Firebase", "Display name updated in Firebase Auth");
 
                                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -139,9 +134,10 @@ public class RegisterActivity extends AppCompatActivity {
                                                                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Display name updated in Firestore"))
                                                                 .addOnFailureListener(e -> Log.w("FirestoreError", "Error updating display name in Firestore", e));
                                                     } else {
-                                                        Log.w("FirebaseError", "Error updating display name in Firebase Auth", task2.getException());
+                                                        Log.w("FirebaseError", "Error updating display name in Firebase Auth", task.getException());
                                                     }
                                                 });
+
                                     }
 
                                     Toast.makeText(RegisterActivity.this, "User created.",
@@ -152,32 +148,21 @@ public class RegisterActivity extends AppCompatActivity {
                                     startActivity(intent);
 
                                 } else {
-                                    if (password.length() < 8) {
-                                        editTextPassword.setError("Password must be at least 8 characters");
-                                        return;
+                                    if (password.length() >= 8){
+                                        Toast.makeText(RegisterActivity.this, "Registration failed. Invalid email address.",
+                                                Toast.LENGTH_SHORT).show();
                                     }
-                                    String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
-                                    switch (errorCode) {
-                                        case "ERROR_EMAIL_ALREADY_IN_USE":
-                                            editTextUsername.setError("Email is already registered");
-                                            editTextUsername.requestFocus();
-                                            break;
-                                        case "ERROR_INVALID_EMAIL":
-                                            editTextUsername.setError("Invalid email address");
-                                            editTextUsername.requestFocus();
-                                            break;
-                                        default:
-                                            Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(),
-                                                    Toast.LENGTH_SHORT).show();
-                                            break;
+                                    else{
+                                        Toast.makeText(RegisterActivity.this, "Password must be at least 8 characters.",
+                                                Toast.LENGTH_SHORT).show();
                                     }
-
-
                                 }
                             }
                         });
             }
         });
+
+        // For the course selection
         courseDropdown = findViewById(R.id.courseDropdown);
         courseDropdown.setOnClickListener(v -> showCourseSelection());
     }

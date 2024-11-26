@@ -49,7 +49,8 @@ public class LogOutTest {
                     }
                 });
 
-        Thread.sleep(5000);
+        // Wait for the sign-in process to complete (using a latch or other async mechanism is preferred)
+        Thread.sleep(5000); // Or consider using a more robust async mechanism like a CountDownLatch
     }
 
     private void runLogoutTest() {
