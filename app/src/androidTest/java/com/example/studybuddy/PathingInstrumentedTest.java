@@ -64,6 +64,16 @@ public class PathingInstrumentedTest {
         onView(withId(R.id.chatMessagesListView)).check(matches(isDisplayed()));
     }
 
+    @Test
+    public void pathToCalendar(){
+        Login();
+        stall(1000);
+        navToStudyGroup();
+        onView(withId(R.id.calendar)).perform(click());
+        stall(1000);
+        onView(withId(R.id.calendarView)).check(matches(isDisplayed()));
+    }
+
     private void navToMainChat(){
         navToGroupChats();
         stall(1000);
@@ -101,4 +111,6 @@ public class PathingInstrumentedTest {
             fail();
         }
     }
+
+
 }

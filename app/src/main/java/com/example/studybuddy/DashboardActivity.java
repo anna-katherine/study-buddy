@@ -187,7 +187,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    private void initializeGroupList() {
+    void initializeGroupList() {
         String userID = auth.getCurrentUser().getUid();
 
         CollectionReference groupsRef = db.collection("groups");
@@ -414,7 +414,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     Boolean createdGroup = true;
 
-    private void createGroup(String groupName, String selectedOption){
+    void createGroup(String groupName, String selectedOption){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (Objects.equals(groupName, "") || groupName == null)
         {
@@ -476,7 +476,7 @@ public class DashboardActivity extends AppCompatActivity {
         createdGroup = true;
     }
 
-    private void removeGroup(String name){
+    void removeGroup(String name){
         db.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -536,7 +536,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    private void initializeGroupListAndShowDialog() {
+    void initializeGroupListAndShowDialog() {
         String userID = auth.getCurrentUser().getUid();
         CollectionReference groupsRef = db.collection("groups");
 
