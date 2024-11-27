@@ -305,6 +305,10 @@ public class StudyGroupActivity extends AppCompatActivity
             String startTime = startTimeDisplay.getText().toString();
             String endTime = endTimeDisplay.getText().toString();
 
+            if (!isValidSession(name, location, date, startTime, endTime)){
+                return;
+            }
+
             Map<String, Object> sessionData = new HashMap<>();
             sessionData.put("sessionName", name);
             sessionData.put("location", location);
@@ -352,5 +356,71 @@ public class StudyGroupActivity extends AppCompatActivity
         params.setMargins(16, 32, 16, 32);
         textView.setLayoutParams(params);
         textView.setClickable(true);
+    }
+
+    public static boolean isValidSession(String name, String location, String date, String startTime, String endTime){
+        if (name.isEmpty() || location.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()){
+            return false;
+        }
+        else if (name.length() > 100){
+            return false;
+        }
+
+        //No end times before start times.
+        int i = startTime.length() - 5;
+        int j = endTime.length() - 5;
+        char s = startTime.charAt(i);
+        char e = endTime.charAt(j);
+        if ((e == ' ') && (s != ' ')){
+            return false;
+        }
+        else if (s != ' ' && e != ' '){
+            if (e < s){
+                return false;
+            }
+            else if (e == s){
+                s = startTime.charAt(i + 1);
+                e = endTime.charAt(j + 1);
+                if (e < s){
+                    return false;
+                }
+                else if (e == s){
+                    s = startTime.charAt(i + 3);
+                    e = endTime.charAt(j + 3);
+                    if (e < s){
+                        return false;
+                    }
+                    else if (e == s){
+                        s = startTime.charAt(i + 4);
+                        e = endTime.charAt(j + 4);
+                        if (e <= s){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        else if ((e == ' ') && (s == ' ')){
+            s = startTime.charAt(i + 1);
+            e = endTime.charAt(j + 1);
+            if (e < s){
+                return false;
+            }
+            else if (e == s){
+                s = startTime.charAt(i + 3);
+                e = endTime.charAt(j + 3);
+                if (e < s){
+                    return false;
+                }
+                else if (e == s){
+                    s = startTime.charAt(i + 4);
+                    e = endTime.charAt(j + 4);
+                    if (e <= s){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
