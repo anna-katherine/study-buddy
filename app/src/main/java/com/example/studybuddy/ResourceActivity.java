@@ -27,12 +27,13 @@ import java.util.ArrayList;
 
 public class ResourceActivity extends AppCompatActivity {
 
-    private Uri fileUri;
-    private AlertDialog dialog;
-    private ListView resourceLV;
-    private ArrayList<String> resourceNames;
-    private ArrayAdapter<String> arrayAdapter;
-    private SearchView searchView;
+    Uri fileUri;
+    AlertDialog dialog;
+    ListView resourceLV;
+    ArrayList<String> resourceNames;
+    ArrayAdapter<String> arrayAdapter;
+    SearchView searchView;
+    Button uploadButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -114,7 +115,7 @@ public class ResourceActivity extends AppCompatActivity {
         EditText categoryEditText = dialogView.findViewById(R.id.editTextCategory);
         Button chooseFileButton = dialogView.findViewById(R.id.buttonChooseFile);
         TextView fileNameTextView = dialogView.findViewById(R.id.textViewFileName);
-        Button uploadButton = dialogView.findViewById(R.id.buttonUpload);
+        uploadButton = dialogView.findViewById(R.id.buttonUpload);
 
         chooseFileButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

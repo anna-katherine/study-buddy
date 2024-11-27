@@ -55,6 +55,7 @@ dependencies {
 
     testImplementation("org.mockito:mockito-core:5.5.0")
     androidTestImplementation("org.mockito:mockito-android:5.5.0")
-
+    androidTestImplementation ("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation ("androidx.test:core:1.4.0")
 }
 

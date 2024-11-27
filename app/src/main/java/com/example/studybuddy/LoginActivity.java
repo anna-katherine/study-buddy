@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -60,11 +61,15 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (TextUtils.isEmpty(username)){
                     progressBar.setVisibility(View.GONE);
+                    editTextUsername.setError("Enter username");
+                    editTextUsername.requestFocus();
                     Toast.makeText(LoginActivity.this, "Enter username", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (TextUtils.isEmpty(password)){
                     progressBar.setVisibility(View.GONE);
+                    editTextPassword.setError("Enter password");
+                    editTextPassword.requestFocus();
                     Toast.makeText(LoginActivity.this, "Enter password", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -81,6 +86,9 @@ public class LoginActivity extends AppCompatActivity {
                                     finish();
                                 } else {
                                     // If sign in fails, display a message to the user.
+                                    editTextUsername.setError("Login failed");
+                                    editTextPassword.setError("Login failed");
+                                    editTextPassword.requestFocus();
                                     Toast.makeText(LoginActivity.this, "Login failed.",
                                             Toast.LENGTH_SHORT).show();
                                 }
