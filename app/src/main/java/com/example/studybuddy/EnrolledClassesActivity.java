@@ -107,7 +107,7 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         });
 
     }
-    private void fetchUserData(String userID) {
+    void fetchUserData(String userID) {
         // Reference to the user document
         DocumentReference userRef = db.collection("users").document(userID);
 

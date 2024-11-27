@@ -21,6 +21,14 @@ public class StudySession {
         attendees.add(FirebaseAuth.getInstance().getCurrentUser());
     }
 
+    StudySession(String date, String time)
+    {
+        this.date = date;
+        this.time = time;
+        id = 0;
+    }
+
+
     public String getDate(){
         return date;
     }
