@@ -17,21 +17,25 @@ import androidx.test.espresso.intent.Intents;
 
 import org.junit.Test;
 
+import java.util.UUID;
+
 public class RegisterToEnrolledTest {
+
     @Test
     public void testSelectedCoursesArePassedToNextActivity() {
         ActivityScenario<RegisterActivity> scenario2 = ActivityScenario.launch(RegisterActivity.class);
+
+        String randomEmail = "testuser_" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
 
         Espresso.onView(withId(R.id.courseDropdown)).perform(click());
         Espresso.onView(withText("Course 1: Math")).perform(click());
         Espresso.onView(withText("Course 2: English")).perform(click());
         Espresso.onView(withText("OK")).perform(click());
 
-        Espresso.onView(withId(R.id.username)).perform(ViewActions.typeText("newtestuser@example.com"));
+        Espresso.onView(withId(R.id.username)).perform(ViewActions.typeText(randomEmail));
         Espresso.onView(withId(R.id.password)).perform(ViewActions.typeText("Password123"));
         Espresso.onView(withId(R.id.firstname)).perform(ViewActions.typeText("John"));
         Espresso.onView(withId(R.id.lastname)).perform(ViewActions.typeText("Doe"));
-
 
         Espresso.onView(withId(R.id.register_button)).perform(ViewActions.click());
 
@@ -52,3 +56,4 @@ public class RegisterToEnrolledTest {
         Intents.release();
     }
 }
+

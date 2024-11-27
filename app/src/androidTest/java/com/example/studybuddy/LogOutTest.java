@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +32,8 @@ public class LogOutTest {
 
     @Test
     public void testLogoutRedirectsToLoginActivity() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1); // Create a latch to wait for async operation
+
         firebaseAuth.signInWithEmailAndPassword("gsianipa@usc.edu", "password")
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -37,24 +41,21 @@ public class LogOutTest {
                         if (user != null) {
                             assertNotNull("User should be logged in", user);
                             System.out.println("Logged in as: " + user.getEmail());
-
-                            // Proceed with the rest of the test here, inside the successful sign-in callback
-                            runLogoutTest();
-
                         } else {
                             System.out.println("User is null, sign-in failed");
                         }
                     } else {
                         System.out.println("Sign-in failed: " + task.getException().getMessage());
                     }
+                    latch.countDown(); // Release the latch once the task completes
                 });
 
-        // Wait for the sign-in process to complete (using a latch or other async mechanism is preferred)
-        Thread.sleep(5000); // Or consider using a more robust async mechanism like a CountDownLatch
+        latch.await(); // Wait for the latch to be released
+
+        runLogoutTest(); // Proceed with the logout test
     }
 
     private void runLogoutTest() {
-
         Intents.init();
 
         ActivityScenario.launch(EnrolledClassesActivity.class);
@@ -70,3 +71,4 @@ public class LogOutTest {
         Intents.release();
     }
 }
+
