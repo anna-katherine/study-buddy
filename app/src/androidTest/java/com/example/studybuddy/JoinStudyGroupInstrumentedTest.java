@@ -1,14 +1,19 @@
 package com.example.studybuddy;
 
+import static androidx.test.espresso.Espresso.onIdle;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.hamcrest.Matchers.not;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -33,10 +38,18 @@ public class JoinStudyGroupInstrumentedTest
         onView(withId(R.id.username)).perform(typeText("tiffli@gmail.com"), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText("tifftest"), closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
+        Thread.sleep(2000);
         onView(withId(R.id.dashboard)).perform(click());
         onView(withId(R.id.joinGroupButton)).perform(click());
         onView(withText("Alex's MATH Group")).perform(click());
         onView(withId(android.R.id.button1)).perform(click());
+        Thread.sleep(1000);
         onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(hasDescendant(withText("Alex's MATH Group"))));
+
+        // leave
+        onView(withText("Alex's MATH Group")).perform(longClick());
+        onView(withId(android.R.id.button1)).perform(click());
+        onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(not(hasDescendant(withText("Alex's MATH Group")))));
+        pressBack();
     }
 }
