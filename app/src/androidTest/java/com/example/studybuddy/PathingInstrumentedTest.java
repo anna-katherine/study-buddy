@@ -71,7 +71,7 @@ public class PathingInstrumentedTest {
         navToStudyGroup();
         onView(withId(R.id.calendar)).perform(click());
         stall(1000);
-        onView(withId(R.id.calendarView)).check(matches(isDisplayed()));
+        onView(withId(R.id.calendarTitle)).check(matches(isDisplayed()));
     }
 
     private void navToMainChat(){
@@ -111,6 +111,4 @@ public class PathingInstrumentedTest {
             fail();
         }
     }
-
-
 }
