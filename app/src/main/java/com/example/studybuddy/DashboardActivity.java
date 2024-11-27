@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -38,7 +37,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -374,6 +372,10 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
+    public void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     void fetchUserData(String userID) {
         items.clear();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -411,12 +413,11 @@ public class DashboardActivity extends AppCompatActivity {
 
     Boolean createdGroup = true;
 
-    void createGroup(String groupName, String selectedOption){
+    String createGroup(String groupName, String selectedOption){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        if (Objects.equals(groupName, "") || groupName == null)
-        {
-            Toast.makeText(DashboardActivity.this, "No group name provided", Toast.LENGTH_SHORT).show();
-            return;
+        if (Objects.equals(groupName, "") || groupName == null) {
+            showToast("No group name provided");
+            return "Group name cannot be empty";
         }
 
         DocumentReference group = db.collection("groups").document(groupName);
@@ -471,6 +472,7 @@ public class DashboardActivity extends AppCompatActivity {
                     });
         }
         createdGroup = true;
+        return groupName;
     }
 
     void removeGroup(String name){
