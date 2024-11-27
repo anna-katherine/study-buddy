@@ -84,8 +84,15 @@ public class RegisterActivity extends AppCompatActivity {
                 firstname = String.valueOf(fName.getText());
                 lastname = String.valueOf(lName.getText());
 
+                if (password.length() < 8) {
+                    editTextPassword.setError("Password must be at least 8 characters.");
+                    editTextPassword.requestFocus();
+                    return;
+                }
+
                 if (TextUtils.isEmpty(username)){
-                    Toast.makeText(RegisterActivity.this, "Enter username", Toast.LENGTH_SHORT).show();
+                    editTextUsername.setError("Enter username.");
+                    editTextUsername.requestFocus();
                     return;
                 }
                 if (TextUtils.isEmpty(password)){
@@ -101,7 +108,6 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-
                 mAuth.createUserWithEmailAndPassword(username, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
@@ -109,19 +115,21 @@ public class RegisterActivity extends AppCompatActivity {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
 
-                                    //Display name will now be email name before '@' character
+                                    // Display name will now be email name before '@' character
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     String displayName = "";
-                                    if (user != null){
+                                    if (user != null) {
                                         displayName = String.valueOf(fName.getText());
                                         char lastInit = String.valueOf(lName.getText()).toUpperCase().charAt(0);
                                         displayName += " " + lastInit;
+
                                         UserProfileChangeRequest updateName = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(displayName).build();
+
                                         String finalDisplayName = displayName;
                                         user.updateProfile(updateName)
                                                 .addOnCompleteListener(task2 -> {
-                                                    if (task.isSuccessful()) {
+                                                    if (task2.isSuccessful()) {
                                                         Log.d("Firebase", "Display name updated in Firebase Auth");
 
                                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -134,10 +142,9 @@ public class RegisterActivity extends AppCompatActivity {
                                                                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Display name updated in Firestore"))
                                                                 .addOnFailureListener(e -> Log.w("FirestoreError", "Error updating display name in Firestore", e));
                                                     } else {
-                                                        Log.w("FirebaseError", "Error updating display name in Firebase Auth", task.getException());
+                                                        Log.w("FirebaseError", "Error updating display name in Firebase Auth", task2.getException());
                                                     }
                                                 });
-
                                     }
 
                                     Toast.makeText(RegisterActivity.this, "User created.",
@@ -148,21 +155,21 @@ public class RegisterActivity extends AppCompatActivity {
                                     startActivity(intent);
 
                                 } else {
-                                    if (password.length() >= 8){
+                                    if (password.length() < 8) {
+                                        editTextPassword.setError("Password must be at least 8 characters.");
+                                        editTextPassword.requestFocus();
+                                    } else {
                                         Toast.makeText(RegisterActivity.this, "Registration failed. Invalid email address.",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                    else{
-                                        Toast.makeText(RegisterActivity.this, "Password must be at least 8 characters.",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
                         });
+
+
             }
         });
 
-        // For the course selection
         courseDropdown = findViewById(R.id.courseDropdown);
         courseDropdown.setOnClickListener(v -> showCourseSelection());
     }
