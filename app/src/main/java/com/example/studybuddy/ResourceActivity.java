@@ -1,10 +1,13 @@
 package com.example.studybuddy;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +26,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 
 public class ResourceActivity extends AppCompatActivity {
@@ -36,8 +42,7 @@ public class ResourceActivity extends AppCompatActivity {
     Button uploadButton;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.resource);
@@ -65,7 +70,7 @@ public class ResourceActivity extends AppCompatActivity {
 
         resourceLV.setOnItemClickListener((parent, view, position, id) -> {
             String resourceName = resourceNames.get(position);
-            downloadResource(resourceName);
+            onResourceClick(resourceName);
         });
 
         searchView = findViewById(R.id.searchView);
@@ -84,22 +89,6 @@ public class ResourceActivity extends AppCompatActivity {
         });
 
     }
-
-    private void downloadResource(String resourceName) {
-
-        // do Firebase fetch here to get the resources
-        Uri fileUri = Uri.parse("your_file_uri_here");
-
-        new AlertDialog.Builder(this)
-            .setTitle("Download Resource")
-            .setMessage("Do you want to download " + resourceName + "?")
-            .setPositiveButton("Download", (dialog, which) -> {
-                // downloadFile(fileUri);
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
-    }
-
 
     private void createDialog()
     {
@@ -131,11 +120,10 @@ public class ResourceActivity extends AppCompatActivity {
 
             if (fileUri != null)
             {
-                Log.d("ResourceActivity", "File uploaded: " + fileName);
-                resourceNames.add(fileName);
-                arrayAdapter.notifyDataSetChanged();
-                // Firebase implementation here eventually
-                Toast.makeText(this, "File uploaded", Toast.LENGTH_SHORT).show();
+//                Log.d("ResourceActivity", "File uploaded: " + fileName);
+//                resourceNames.add(fileName);
+//                arrayAdapter.notifyDataSetChanged();
+                uploadFileToFirebase(fileUri, fileName, description, category);
             }
             else {
                 Toast.makeText(this, "Please select a file first.", Toast.LENGTH_SHORT).show();
@@ -145,47 +133,65 @@ public class ResourceActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-            fileUri = data.getData();  // Get the URI of the selected file
+    private void uploadFileToFirebase(Uri fileUri, String fileName, String description, String category) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference().child("uploads/" + fileName);
 
-            if (fileUri != null) {
-                // Retrieve the selected file name
-                String fileName = getFileName(fileUri);
+        storageReference.putFile(fileUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                        String downloadUrl = uri.toString();
 
-                // Display the file name in the TextView and hide the "Choose File" button
-                TextView fileNameTextView = dialog.findViewById(R.id.textViewFileName);
-                Button chooseFileButton = dialog.findViewById(R.id.buttonChooseFile);
-                fileNameTextView.setText("Selected File: " + fileName);
-                fileNameTextView.setVisibility(View.VISIBLE);
-                chooseFileButton.setVisibility(View.GONE);
+                        Log.d("FirebaseUpload", "File uploaded: " + fileName + ", URL: " + downloadUrl);
 
-                // Optional: Show a toast for confirmation
-                Toast.makeText(this, "File selected: " + fileName, Toast.LENGTH_SHORT).show();
-            }
-        }
+                        resourceNames.add(fileName); // Add the file name to your list
+                        arrayAdapter.notifyDataSetChanged(); // Notify the adapter to refresh the ListView
+                        Toast.makeText(this, "File uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "File upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
-    public String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
+    private void onResourceClick(String resourceName) {
+
+        StorageReference storageReference = FirebaseStorage.getInstance()
+                .getReference()
+                .child("uploads/" + resourceName); // Adjust the path as needed
+
+        new AlertDialog.Builder(this)
+                .setTitle("Download Resource")
+                .setMessage("Do you want to download " + resourceName + "?")
+                .setPositiveButton("Download", (dialog, which) -> {
+                    storageReference.getDownloadUrl().addOnSuccessListener(uri ->
+                    {
+                        downloadFile(resourceName, uri);
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to get file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
+    private void downloadFile(String fileName, Uri fileUri)
+    {
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        if (downloadManager == null) {
+            Toast.makeText(this, "Download Manager not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DownloadManager.Request request = new DownloadManager.Request(fileUri)
+                .setTitle(fileName)
+                .setDescription("Downloading resource...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true);
+
+        downloadManager.enqueue(request);
+        Toast.makeText(this, "Downloading " + fileName, Toast.LENGTH_SHORT).show();
+    }
 
 }
