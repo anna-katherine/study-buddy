@@ -114,12 +114,10 @@ public class DashboardActivity extends AppCompatActivity {
                     items.remove(position);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(DashboardActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
-                    //Remove user from group in Firebase
                     removeGroup(remove);
 
                 })
                 .setNegativeButton("No", (dialog, which) -> {
-                    // Do nothing
                     dialog.dismiss();
                 })
                 .show();
@@ -146,8 +144,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        //Display user's email (for now, can change to username maybe)
-
         TextView tv = findViewById(R.id.user_details);
         user = auth.getCurrentUser();
         if (user == null){
@@ -155,7 +151,7 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        else{
+        else {
             String name = user.getDisplayName();
             name += "'s Dashboard";
             tv.setText(name);
@@ -552,7 +548,6 @@ public class DashboardActivity extends AppCompatActivity {
                             groupList.add(groupName);
                         }
                     }
-                    // Once groupList is populated, show the dialog
                     joinDialog();
                 } else {
                     Log.w("FirebaseError", "Error fetching group list", task.getException());

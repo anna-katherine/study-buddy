@@ -45,7 +45,8 @@ import java.util.Map;
 public class StudyGroupActivity extends AppCompatActivity
 {
     String groupName;
-    GroupData gd;
+    ArrayList<String> items2;
+    ListView lv2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,8 +54,7 @@ public class StudyGroupActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.study_group);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) ->
-        {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -62,119 +62,97 @@ public class StudyGroupActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         groupName = intent.getStringExtra("com.example.studybuddy.GROUPNAME");
-        //gd = new GroupData("groupName", true);
 
         TextView tv = findViewById(R.id.group_name);
         tv.setText(groupName);
-
-        // Placeholders
-        ListView lv = findViewById(R.id.memberList);
-        ArrayList<String> items = new ArrayList<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String groupId = groupName;
         DocumentReference groupRef = db.collection("groups").document(groupId);
 
-        // Fetch the group document from Firestore
-        groupRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        // Retrieve the memberList from the document
-                        List<String> memberList = (List<String>) document.get("memberList");
+        ListView lv = findViewById(R.id.memberList);
+        ArrayList<String> items = new ArrayList<>();
 
-                        if (memberList != null && !memberList.isEmpty()) {
-                            // Loop through each member ID and fetch their displayName from Firestore
-                            for (String memberId : memberList) {
-                                // Firebase reference to the users collection
-                                DocumentReference userRef = db.collection("users").document(memberId);
+        groupRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    List<String> memberList = (List<String>) document.get("memberList");
+                    if (memberList != null && !memberList.isEmpty()) {
+                        for (String memberId : memberList) {
+                            DocumentReference userRef = db.collection("users").document(memberId);
+                            userRef.get().addOnCompleteListener(userTask -> {
+                                if (userTask.isSuccessful()) {
+                                    DocumentSnapshot userDoc = userTask.getResult();
+                                    if (userDoc.exists()) {
+                                        String userName = userDoc.getString("displayName");
+                                        if (userName != null) {
+                                            items.add(userName);
+                                        }
 
-                                // Fetch the user document from Firestore
-                                userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot userDoc = task.getResult();
-                                            if (userDoc.exists()) {
-                                                // Retrieve the displayName of the user
-                                                String userName = userDoc.getString("displayName");
-
-                                                // Add the userName to the list if it's not null
-                                                if (userName != null) {
-                                                    items.add(userName);  // Add the member's name to the list
-                                                }
-
-                                                // Once all members have been processed, update the ListView
-                                                if (items.size() == memberList.size()) {
-                                                    ArrayAdapter<String> adapter = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items);
-                                                    lv.setAdapter(adapter);
-                                                    Log.d("Firebase", "Member List: " + items.toString());
-                                                }
-                                            }
-                                        } else {
-                                            Log.w("FirebaseError", "Error fetching user data", task.getException());
+                                        if (items.size() == memberList.size()) {
+                                            ArrayAdapter<String> adapter = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items);
+                                            lv.setAdapter(adapter);
                                         }
                                     }
-                                });
-                            }
-                        } else {
-                            Log.d("Firebase", "No members found in the group.");
+                                } else {
+                                    Log.w("FirebaseError", "Error fetching user data", userTask.getException());
+                                }
+                            });
                         }
-                    } else {
-                        Log.d("Firebase", "Group document does not exist.");
                     }
-                } else {
-                    Log.w("FirebaseError", "Error getting group data", task.getException());
                 }
+            } else {
+                Log.w("FirebaseError", "Error getting group data", task.getException());
             }
         });
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        lv.setAdapter(adapter);
 
-        ListView lv2 = findViewById(R.id.sessionList);
-        ArrayList<String> items2 = new ArrayList<>();
+        lv2 = findViewById(R.id.sessionList);
+        items2 = new ArrayList<>();
 
-        groupRef = db.collection("groups").document(groupId);
+        lv2.setOnItemLongClickListener((parent, view, position, id) -> {
+            new AlertDialog.Builder(StudyGroupActivity.this)
+                    .setTitle("Delete Session")
+                    .setMessage("Are you sure you want to delete this session?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        String sessionDetails = items2.get(position);
+                        Log.d("Items2", "Items2 list: " + items2);
+                        String sessionId = extractSessionId(sessionDetails); // Implement this method if necessary
+                        removeStudySession(sessionId);
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+            return true;
+        });
 
         groupRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     List<String> sessionList = (List<String>) document.get("sessionList");
-
                     if (sessionList != null && !sessionList.isEmpty()) {
-                        // Loop through each session ID and fetch the session details from Firestore
                         for (String sessionId : sessionList) {
                             DocumentReference sessionRef = db.collection("sessions").document(sessionId);
-
                             sessionRef.get().addOnCompleteListener(sessionTask -> {
                                 if (sessionTask.isSuccessful()) {
                                     DocumentSnapshot sessionDoc = sessionTask.getResult();
                                     if (sessionDoc.exists()) {
-
                                         String sessionName = sessionDoc.getString("sessionName");
                                         String startTime = sessionDoc.getString("startTime");
                                         String endTime = sessionDoc.getString("endTime");
                                         String location = sessionDoc.getString("location");
                                         String date = sessionDoc.getString("date");
 
-                                        // Format the session details
                                         String sessionDetails = "\n" + "Name: " + sessionName + "\n" +
-                                                 date + "\n" +
-                                                 startTime + "\n" +
-                                                 endTime + "\n" +
+                                                date + "\n" +
+                                                startTime + "\n" +
+                                                endTime + "\n" +
                                                 "Location: " + location + "\n";
-
-                                        // Add the formatted session details to the list
                                         items2.add(sessionDetails);
 
-                                        // Check if all sessions have been processed before updating the ListView
                                         if (items2.size() == sessionList.size()) {
                                             ArrayAdapter<String> adapter2 = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items2);
                                             lv2.setAdapter(adapter2);
-                                            Log.d("Firebase", "Session List: " + items2.toString());
                                         }
                                     }
                                 } else {
@@ -182,29 +160,21 @@ public class StudyGroupActivity extends AppCompatActivity
                                 }
                             });
                         }
-                    } else {
-                        Log.d("Firebase", "No sessions found in the group.");
                     }
-                } else {
-                    Log.d("Firebase", "Group document does not exist.");
                 }
             } else {
                 Log.w("FirebaseError", "Error getting group data", task.getException());
             }
         });
 
-
         Button resourceButton = findViewById(R.id.resources);
         resourceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Move to Resources page
                 Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
                 startActivity(intent);
             }
         });
-
-        // Navigation functionalities
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener()
@@ -228,6 +198,10 @@ public class StudyGroupActivity extends AppCompatActivity
                 return true;
             }
         });
+    }
+
+    private String extractSessionId(String sessionDetails) {
+        return sessionDetails.split(" ")[0];
     }
 
     private void createSessionDialog(int number)
@@ -295,7 +269,6 @@ public class StudyGroupActivity extends AppCompatActivity
         dialogLayout.addView(titleInput);
         dialogLayout.addView(locationInput);
 
-
         builder.setView(dialogLayout);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
@@ -305,7 +278,7 @@ public class StudyGroupActivity extends AppCompatActivity
             String startTime = startTimeDisplay.getText().toString();
             String endTime = endTimeDisplay.getText().toString();
 
-            if (!isValidSession(name, location, date, startTime, endTime)){
+            if (!isValidSession(name, location, date, startTime, endTime)) {
                 return;
             }
 
@@ -323,11 +296,19 @@ public class StudyGroupActivity extends AppCompatActivity
                     .addOnSuccessListener(documentReference -> {
                         Log.d("Firebase", "Session created with ID: " + documentReference.getId());
 
-                        // Once session is created, retrieve the group document
                         DocumentReference groupRef = db.collection("groups").document(groupName);
                         groupRef.update("sessionList", FieldValue.arrayUnion(documentReference.getId()))
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(StudyGroupActivity.this, "Session added to group successfully!", Toast.LENGTH_SHORT).show();
+                                    String sessionDetails = "\n" + "Name: " + name + "\n" +
+                                            date + "\n" +
+                                            startTime + "\n" +
+                                            endTime + "\n" +
+                                            "Location: " + location + "\n";
+
+                                    items2.add(sessionDetails);
+                                    ArrayAdapter<String> adapter2 = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items2);
+                                    lv2.setAdapter(adapter2);
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.w("FirebaseError", "Error adding session to group", e);
@@ -343,6 +324,46 @@ public class StudyGroupActivity extends AppCompatActivity
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
+
+    private void removeStudySession(String sessionId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference sessionDoc = db.collection("sessions").document(sessionId);
+        DocumentReference groupDoc = db.collection("groups").document(groupName);
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot groupSnapshot = transaction.get(groupDoc);
+
+            List<String> sessionList = (List<String>) groupSnapshot.get("sessionList");
+            if (sessionList != null && sessionList.contains(sessionId)) {
+                sessionList.remove(sessionId);
+                transaction.update(groupDoc, "sessionList", sessionList);
+            }
+
+            transaction.delete(sessionDoc);
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d("SessionId", "Session ID: " + sessionId);
+            Log.d("Firebase", "Session successfully removed!");
+            for (int i = 0; i < items2.size(); i++) {
+                if (items2.get(i).contains(sessionId)) { // Assuming sessionId is part of the session details
+                    items2.remove(i);
+                    break;
+                }
+            }
+
+            ArrayAdapter<String> adapter2 = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items2);
+            lv2.setAdapter(adapter2);
+
+            Toast.makeText(StudyGroupActivity.this, "Session removed successfully!", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Log.w("FirebaseError", "Error removing session", e);
+            Toast.makeText(StudyGroupActivity.this, "Failed to remove session", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+
 
     private void styleDateOrTimePicker(TextView textView) {
         textView.setTextColor(Color.BLACK);
@@ -365,8 +386,6 @@ public class StudyGroupActivity extends AppCompatActivity
         else if (name.length() > 100){
             return false;
         }
-
-        //No end times before start times.
         int i = startTime.length() - 5;
         int j = endTime.length() - 5;
         char s = startTime.charAt(i);
