@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -25,12 +24,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -41,6 +36,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.*;
 
 public class StudyGroupActivity extends AppCompatActivity
 {
@@ -116,8 +112,9 @@ public class StudyGroupActivity extends AppCompatActivity
                     .setMessage("Are you sure you want to delete this session?")
                     .setPositiveButton("Yes", (dialog, which) -> {
                         String sessionDetails = items2.get(position);
-                        Log.d("Items2", "Items2 list: " + items2);
-                        String sessionId = extractSessionId(sessionDetails); // Implement this method if necessary
+                        Log.d("Sessiondetails", "Sessiondetails: " + sessionDetails);
+                        String sessionId = extractSessionId(sessionDetails);
+                        Log.d("SessionId", "Sessionid: " + sessionId);
                         removeStudySession(sessionId);
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
@@ -202,7 +199,15 @@ public class StudyGroupActivity extends AppCompatActivity
     }
 
     private String extractSessionId(String sessionDetails) {
-        return sessionDetails.split(" ")[0];
+        String namePattern = "Name:\\s*(.+)";
+        Pattern pattern = Pattern.compile(namePattern);
+        Matcher matcher = pattern.matcher(sessionDetails);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+
     }
 
     private void createSessionDialog(int number)
@@ -326,42 +331,59 @@ public class StudyGroupActivity extends AppCompatActivity
         builder.show();
     }
 
-    private void removeStudySession(String sessionId) {
+    private void removeStudySession(String sessionName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        DocumentReference sessionDoc = db.collection("sessions").document(sessionId);
-        DocumentReference groupDoc = db.collection("groups").document(groupName);
+        db.collection("sessions")
+                .whereEqualTo("sessionName", sessionName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot sessionSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        String sessionId = sessionSnapshot.getId();
 
-        db.runTransaction(transaction -> {
-            DocumentSnapshot groupSnapshot = transaction.get(groupDoc);
+                        DocumentReference sessionDoc = db.collection("sessions").document(sessionId);
+                        DocumentReference groupDoc = db.collection("groups").document(groupName);
 
-            List<String> sessionList = (List<String>) groupSnapshot.get("sessionList");
-            if (sessionList != null && sessionList.contains(sessionId)) {
-                sessionList.remove(sessionId);
-                transaction.update(groupDoc, "sessionList", sessionList);
-            }
+                        db.runTransaction(transaction -> {
+                            DocumentSnapshot groupSnapshot = transaction.get(groupDoc);
 
-            transaction.delete(sessionDoc);
+                            List<String> sessionList = (List<String>) groupSnapshot.get("sessionList");
+                            if (sessionList != null && sessionList.contains(sessionId)) {
+                                sessionList.remove(sessionId);
+                                transaction.update(groupDoc, "sessionList", sessionList);
+                            }
 
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            Log.d("SessionId", "Session ID: " + sessionId);
-            Log.d("Firebase", "Session successfully removed!");
-            for (int i = 0; i < items2.size(); i++) {
-                if (items2.get(i).contains(sessionId)) { // Assuming sessionId is part of the session details
-                    items2.remove(i);
-                    break;
-                }
-            }
+                            transaction.delete(sessionDoc);
+                            return null;
+                        }).addOnSuccessListener(aVoid -> {
+                            Log.d("SessionId", "Session Id: " + sessionId);
+                            Log.d("SessionName", "Session Name: " + sessionName);
+                            Log.d("Firebase", "Session successfully removed!");
 
-            ArrayAdapter<String> adapter2 = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items2);
-            lv2.setAdapter(adapter2);
+                            for (int i = 0; i < items2.size(); i++) {
+                                if (items2.get(i).contains(sessionName)) { // Match by session name for display
+                                    items2.remove(i);
+                                    break;
+                                }
+                            }
 
-            Toast.makeText(StudyGroupActivity.this, "Session removed successfully!", Toast.LENGTH_SHORT).show();
-        }).addOnFailureListener(e -> {
-            Log.w("FirebaseError", "Error removing session", e);
-            Toast.makeText(StudyGroupActivity.this, "Failed to remove session", Toast.LENGTH_SHORT).show();
-        });
+                            ArrayAdapter<String> adapter2 = new ArrayAdapter<>(StudyGroupActivity.this, android.R.layout.simple_list_item_1, items2);
+                            lv2.setAdapter(adapter2);
+
+                            Toast.makeText(StudyGroupActivity.this, "Session removed successfully!", Toast.LENGTH_SHORT).show();
+                        }).addOnFailureListener(e -> {
+                            Log.w("FirebaseError", "Error removing session", e);
+                            Toast.makeText(StudyGroupActivity.this, "Failed to remove session", Toast.LENGTH_SHORT).show();
+                        });
+                    } else {
+                        Toast.makeText(StudyGroupActivity.this, "Session not found!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("FirebaseError", "Error querying session by name", e);
+                    Toast.makeText(StudyGroupActivity.this, "Failed to query session by name", Toast.LENGTH_SHORT).show();
+                });
     }
 
 

@@ -39,9 +39,6 @@
             android:name=".ResourceActivity"
             android:exported="false" />
         <activity
-            android:name=".StudySessionActivity"
-            android:exported="false" />
-        <activity
             android:name=".StudyGroupActivity"
             android:exported="false" />
         <activity
