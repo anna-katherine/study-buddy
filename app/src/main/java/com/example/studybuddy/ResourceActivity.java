@@ -40,12 +40,15 @@ public class ResourceActivity extends AppCompatActivity {
     ArrayAdapter<String> arrayAdapter;
     SearchView searchView;
     Button uploadButton;
+    String group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.resource);
+        Intent intent = getIntent();
+        group = intent.getStringExtra("groupname");
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -64,9 +67,6 @@ public class ResourceActivity extends AppCompatActivity {
         resourceNames = new ArrayList<>();
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, resourceNames);
         resourceLV.setAdapter(arrayAdapter);
-
-        resourceNames.add("Sample Resource");
-        arrayAdapter.notifyDataSetChanged();
 
         resourceLV.setOnItemClickListener((parent, view, position, id) -> {
             String resourceName = resourceNames.get(position);
@@ -87,8 +87,69 @@ public class ResourceActivity extends AppCompatActivity {
                 return false;
             }
         });
-
+        listResources(group);
     }
+
+    private void listResources(String groupName) {
+
+        StorageReference groupRef = FirebaseStorage.getInstance().getReference().child("uploads/" + groupName);
+        groupRef.listAll()
+                .addOnSuccessListener(listResult -> {
+                    resourceNames.clear();
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        String fileName = fileRef.getName();
+                        resourceNames.add(fileName);
+                    }
+                    arrayAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to list resources: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            fileUri = data.getData();  // Get the URI of the selected file
+
+            if (fileUri != null) {
+                // Retrieve the selected file name
+                String fileName = getFileName(fileUri);
+
+                // Display the file name in the TextView and hide the "Choose File" button
+                TextView fileNameTextView = dialog.findViewById(R.id.textViewFileName);
+                Button chooseFileButton = dialog.findViewById(R.id.buttonChooseFile);
+                fileNameTextView.setText("Selected File: " + fileName);
+                fileNameTextView.setVisibility(View.VISIBLE);
+                chooseFileButton.setVisibility(View.GONE);
+
+                // Optional: Show a toast for confirmation
+                Toast.makeText(this, "File selected: " + fileName, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+
 
     private void createDialog()
     {
@@ -135,7 +196,7 @@ public class ResourceActivity extends AppCompatActivity {
 
     private void uploadFileToFirebase(Uri fileUri, String fileName, String description, String category) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReference().child("uploads/" + fileName);
+        StorageReference storageReference = storage.getReference().child("uploads/" + group + "/" + fileName);
 
         storageReference.putFile(fileUri)
                 .addOnSuccessListener(taskSnapshot -> {
@@ -158,7 +219,7 @@ public class ResourceActivity extends AppCompatActivity {
 
         StorageReference storageReference = FirebaseStorage.getInstance()
                 .getReference()
-                .child("uploads/" + resourceName); // Adjust the path as needed
+                .child("uploads/" + group + "/" + resourceName); // Adjust the path as needed
 
         new AlertDialog.Builder(this)
                 .setTitle("Download Resource")

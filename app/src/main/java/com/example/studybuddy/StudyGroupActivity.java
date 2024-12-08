@@ -200,6 +200,7 @@ public class StudyGroupActivity extends AppCompatActivity
             public void onClick(View view) {
                 //Move to Resources page
                 Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                intent.putExtra("groupname", groupName);
                 startActivity(intent);
             }
         });
