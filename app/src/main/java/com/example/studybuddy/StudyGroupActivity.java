@@ -172,6 +172,7 @@ public class StudyGroupActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                intent.putExtra("groupname", groupName);
                 startActivity(intent);
             }
         });
