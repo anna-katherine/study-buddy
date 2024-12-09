@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,9 +63,13 @@ public class StudyGroupActivity extends AppCompatActivity {
         loadExistingSessions();
 
         Button resourceButton = findViewById(R.id.resources);
-        resourceButton.setOnClickListener(v -> {
-            Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
-            startActivity(intent);
+        resourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(StudyGroupActivity.this, ResourceActivity.class);
+                intent.putExtra("groupname", groupName);
+                startActivity(intent);
+            }
         });
     }
 
