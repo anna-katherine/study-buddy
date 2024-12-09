@@ -35,7 +35,7 @@ public class PathingInstrumentedTest {
     public void pathToDashboard() {
         // Should logout user and bring them to login page.
         Login();
-        stall(1000);
+        stall(2000);
         navToDashboard();
         onView(withId(R.id.groupList)).check(matches(isDisplayed()));
     }
@@ -43,7 +43,7 @@ public class PathingInstrumentedTest {
     @Test
     public void pathToStudyGroup(){
         Login();
-        stall(1000);
+        stall(2000);
         navToStudyGroup();
         onView(withId(R.id.memberList)).check(matches(isDisplayed()));
     }
@@ -51,7 +51,7 @@ public class PathingInstrumentedTest {
     @Test
     public void pathToGroupChats(){
         Login();
-        stall(1000);
+        stall(2000);
         navToGroupChats();
         onView(withId(R.id.groupChatList)).check(matches(isDisplayed()));
     }
@@ -59,7 +59,7 @@ public class PathingInstrumentedTest {
     @Test
     public void pathToMainGroupChat(){
         Login();
-        stall(1000);
+        stall(2000);
         navToMainChat();
         onView(withId(R.id.chatMessagesListView)).check(matches(isDisplayed()));
     }
@@ -67,40 +67,40 @@ public class PathingInstrumentedTest {
     @Test
     public void pathToCalendar(){
         Login();
-        stall(1000);
+        stall(2000);
         navToStudyGroup();
         onView(withId(R.id.calendar)).perform(click());
-        stall(1000);
+        stall(2000);
         onView(withId(R.id.calendarTitle)).check(matches(isDisplayed()));
     }
 
     private void navToMainChat(){
         navToGroupChats();
-        stall(1000);
+        stall(2000);
         onView(withText("Main GroupChat")).perform(click());
-        stall(1000);
+        stall(2000);
     }
     private void navToGroupChats(){
         navToStudyGroup();
-        stall(1000);
+        stall(2000);
         onView(withId(R.id.chat)).perform(click());
-        stall(1000);
+        stall(2000);
     }
 
     private void navToStudyGroup(){
         navToDashboard();
         onView(withText("Alex's MATH Group")).perform(click());
-        stall(1000);
+        stall(2000);
     }
     private void Login(){
-        onView(withId(R.id.username)).perform(typeText("testuser@gmail.com"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.username)).perform(typeText("testuser1@gmail.com"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText("password123"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
     }
 
     private void navToDashboard(){
         onView(withId(R.id.dashboard)).perform(click());
-        stall(1000);
+        stall(2000);
     }
 
     private void stall(int time){

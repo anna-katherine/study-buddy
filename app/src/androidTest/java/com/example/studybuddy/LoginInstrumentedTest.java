@@ -55,7 +55,7 @@ public class LoginInstrumentedTest
     }
     @Test
     public void testSuccessfulLogin() throws InterruptedException {
-        onView(withId(R.id.username)).perform(typeText("testuser@gmail.com"), closeSoftKeyboard());
+        onView(withId(R.id.username)).perform(typeText("testuser1@gmail.com"), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText("password123"), closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
         Thread.sleep(2000);

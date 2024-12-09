@@ -88,7 +88,9 @@ public class EnrolledClassesActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         ArrayList<String> courseList = intent.getStringArrayListExtra("com.example.studybuddy.COURSES");
-        items.addAll(courseList);
+        if (courseList != null){
+            items.addAll(courseList);
+        }
 
         userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -96,7 +98,12 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null && document.exists()) {
-                        //dont need anything
+                        ArrayList<String> list = (ArrayList<String>) document.get("classList");
+                        if (list != null){
+                            items.clear();
+                            items.addAll(list);
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                     else {
                         // Group does not exist, create it

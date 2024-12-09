@@ -174,10 +174,7 @@ public class DashboardActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-
     }
-
 
     void initializeGroupList() {
         String userID = auth.getCurrentUser().getUid();
@@ -331,8 +328,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                         if (courseList != null && !courseList.isEmpty()) {
                             String[] items = courseList.toArray(new String[0]);
-
-
                             ArrayAdapter<String> adapter = new ArrayAdapter<>(DashboardActivity.this, android.R.layout.simple_spinner_item, courseList);
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             dropdownSpinner.setAdapter(adapter);

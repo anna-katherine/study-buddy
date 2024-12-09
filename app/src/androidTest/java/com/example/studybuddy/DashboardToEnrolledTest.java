@@ -28,7 +28,7 @@ public class DashboardToEnrolledTest {
         firebaseAuth = FirebaseAuth.getInstance();
 
 
-        firebaseAuth.signInWithEmailAndPassword("gsianipa@usc.edu", "password")
+        firebaseAuth.signInWithEmailAndPassword("net@usc.edu", "12345678")
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = firebaseAuth.getCurrentUser();

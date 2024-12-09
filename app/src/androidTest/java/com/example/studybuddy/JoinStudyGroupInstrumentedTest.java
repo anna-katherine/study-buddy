@@ -35,21 +35,20 @@ public class JoinStudyGroupInstrumentedTest
 
     @Test
     public void joinStudyGroup() throws InterruptedException {
-        onView(withId(R.id.username)).perform(typeText("tiffli@gmail.com"), closeSoftKeyboard());
-        onView(withId(R.id.password)).perform(typeText("tifftest"), closeSoftKeyboard());
+        onView(withId(R.id.username)).perform(typeText("testuser1@gmail.com"), closeSoftKeyboard());
+        onView(withId(R.id.password)).perform(typeText("password123"), closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
         Thread.sleep(2000);
         onView(withId(R.id.dashboard)).perform(click());
         onView(withId(R.id.joinGroupButton)).perform(click());
-        onView(withText("Alex's MATH Group")).perform(click());
+        onView(withText("Xia's Group")).perform(click());
         onView(withId(android.R.id.button1)).perform(click());
         Thread.sleep(1000);
-        onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(hasDescendant(withText("Alex's MATH Group"))));
+        onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(hasDescendant(withText("Xia's Group"))));
 
         // leave
-        onView(withText("Alex's MATH Group")).perform(longClick());
+        onView(withText("Xia's Group")).perform(longClick());
         onView(withId(android.R.id.button1)).perform(click());
-        onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(not(hasDescendant(withText("Alex's MATH Group")))));
-        pressBack();
+        onView(withId(R.id.groupList)).perform(scrollTo()).check(matches(not(hasDescendant(withText("Xia's Group")))));
     }
 }

@@ -34,7 +34,7 @@ public class LogOutTest {
     public void testLogoutRedirectsToLoginActivity() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1); // Create a latch to wait for async operation
 
-        firebaseAuth.signInWithEmailAndPassword("gsianipa@usc.edu", "password")
+        firebaseAuth.signInWithEmailAndPassword("net@usc.edu", "12345678")
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = firebaseAuth.getCurrentUser();
