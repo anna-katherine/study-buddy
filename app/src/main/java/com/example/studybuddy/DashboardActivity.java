@@ -327,7 +327,7 @@ public class DashboardActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        List<String> courseList = (List<String>) document.get("courseList");
+                        List<String> courseList = (List<String>) document.get("classList");
 
                         if (courseList != null && !courseList.isEmpty()) {
                             String[] items = courseList.toArray(new String[0]);
@@ -357,6 +357,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                             Log.d("Firebase", "Courses: " + Arrays.toString(items));
                         } else {
+                            showToast("You aren't in any classes!");
                             Log.d("Firebase", "No courses found for this user.");
                         }
                     } else {
