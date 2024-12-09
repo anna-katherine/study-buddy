@@ -2,6 +2,8 @@ package com.example.studybuddy;
 
 import com.google.firebase.Timestamp;
 
+import java.util.HashMap;
+
 public class ChatMessage {
     String messageText;
     Timestamp timestamp;
@@ -25,6 +27,16 @@ public class ChatMessage {
 
     public String getSenderName() {
         return senderName;
+    }
+
+    private HashMap<String, Object> fileInfo;
+
+    public void setFileInfo(HashMap<String, Object> fileInfo) {
+        this.fileInfo = fileInfo;
+    }
+
+    public HashMap<String, Object> getFileInfo() {
+        return fileInfo;
     }
 
     public boolean isFromMe() {

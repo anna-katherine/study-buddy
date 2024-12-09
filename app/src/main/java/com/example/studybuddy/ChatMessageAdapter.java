@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import androidx.annotation.NonNull;
 import com.google.firebase.Timestamp;
+import android.content.Intent;
+import android.net.Uri;
 
 public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
 
@@ -23,6 +25,7 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.message_layout, parent, false);
         }
@@ -33,22 +36,31 @@ public class ChatMessageAdapter extends ArrayAdapter<ChatMessage> {
         TextView messageTextView = convertView.findViewById(R.id.messageTextView);
         TextView timestampTextView = convertView.findViewById(R.id.timestampTextView);
 
+        // Handle file messages
+        if (message.getFileInfo() != null) {
+            messageTextView.setClickable(true);
+            messageTextView.setOnClickListener(v -> {
+                String fileUrl = (String) message.getFileInfo().get("fileUrl");
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(fileUrl));
+                getContext().startActivity(intent);
+            });
+        }
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.message_layout, parent, false);
+        }
+
+
         assert message != null;
         senderNameTextView.setText(message.getSenderName());
         messageTextView.setText(message.getMessageText());
 
-        //Set the date and time of message.
+
         String date = getDateFromTimestamp(message.getTimestamp());
         timestampTextView.setText(date);
 
-        // Align message based on who sent it
-        /*if (message.isFromMe()) {
-            messageTextView.setGravity(Gravity.END); // Right-align for messages from you
-            senderNameTextView.setGravity(Gravity.END);
-        } else {
-            messageTextView.setGravity(Gravity.START); // Left-align for messages from others
-            senderNameTextView.setGravity(Gravity.START);
-        }*/
+
         messageTextView.setGravity(Gravity.START); // Left-align for messages from others
         senderNameTextView.setGravity(Gravity.START);
 

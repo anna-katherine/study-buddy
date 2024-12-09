@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:layout_height="400dp">
+
             <TextView
                 android:text="@string/enrolled_courses"
                 android:layout_gravity="center_horizontal"
@@ -31,10 +32,11 @@
                 android:layout_height="300dp"/>
             <Button
                 android:id="@+id/joinGroupButton"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
+                android:layout_gravity="center"
                 android:text="@string/join_class">
             </Button>
         </LinearLayout>
