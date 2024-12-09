@@ -160,6 +160,29 @@ ChatActivity extends AppCompatActivity {
         });
     }
 
+    public static ArrayList<ChatMessage> setupChatLogs(ArrayList<HashMap<String, Object>> chatLogs, String username){
+        ArrayList<ChatMessage> logs = new ArrayList<>();
+        if (chatLogs != null){
+            for (int i = 0; i < chatLogs.size(); i++) {
+                HashMap<String, Object> chatInfo = chatLogs.get(i);
+                String messageText = (String) chatInfo.get("messageText");
+                String sender = (String) chatInfo.get("sender");
+                String userID = (String) chatInfo.get("userID");
+                if (username != null){
+                    if (userID != null) {
+                        if (userID.equals(username)) {
+                            sender += " (You)";
+                        }
+                    }
+                }
+                Timestamp timestamp = (Timestamp) chatInfo.get("timestamp");
+                ChatMessage message = new ChatMessage(messageText, timestamp, sender, (username.equals(userID)));
+                logs.add(message);
+            }
+        }
+        return logs;
+    }
+
     public void sendMessageToFirestore(String groupId, String groupChatName, String senderName, String message) {
         // Create a new Timestamp
         Timestamp timestamp = Timestamp.now();  // Use Firebase's Timestamp class to get the current time
