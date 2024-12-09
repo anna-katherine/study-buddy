@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="top"
-    android:orientation="vertical"
-    android:padding="20dp"
-    tools:context=".StudyGroupActivity">
+    android:id="@+id/main">
 
     <ScrollView
         android:id="@+id/scrollView"
-        android:fillViewport="true"
-        android:layout_above="@id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_marginBottom="56dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Group Name -->
             <TextView
                 android:id="@+id/group_name"
                 android:text="@string/group_title"
@@ -31,8 +33,9 @@
                 android:gravity="center"
                 android:layout_marginBottom="30dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
+            <!-- Group Members -->
             <TextView
                 android:text="@string/group_members"
                 android:layout_gravity="center_horizontal"
@@ -41,14 +44,15 @@
                 android:gravity="center"
                 android:layout_marginBottom="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <ListView
                 android:id="@+id/memberList"
                 android:layout_marginVertical="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"/>
+                android:layout_height="200dp" />
 
+            <!-- Upcoming Sessions -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,28 +63,33 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <ListView
-                android:id="@+id/sessionList"
+            <!-- Session List Container -->
+            <LinearLayout
+                android:id="@+id/sessionListContainer"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"/>
-                android:layout_marginVertical="10dp" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+            </LinearLayout>
 
+            <!-- Resources Button -->
             <Button
                 android:id="@+id/resources"
                 android:text="@string/resources"
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </ScrollView>
 
-
-
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
-        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:menu="@menu/study_group_nav" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

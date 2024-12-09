@@ -425,7 +425,6 @@ public class DashboardActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null && document.exists()) {
-                        //Exists, dont create new group
                         createdGroup = false;
                     }
                     else {
