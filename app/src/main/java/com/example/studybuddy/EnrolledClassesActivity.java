@@ -67,6 +67,11 @@ public class EnrolledClassesActivity extends AppCompatActivity {
             return insets;
         });
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        userDoc = db.collection("users").document(user.getUid());
+        groupCol = db.collection("groups");
+
         allClasses = new ArrayList<>();
         allClasses.add("Course 1: Math");
         allClasses.add("Course 2: English");
@@ -74,25 +79,27 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         allClasses.add("Course 4: Human Biology");
         allClasses.add("Course 5: Data Structures");
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db = FirebaseFirestore.getInstance();
-        userDoc = db.collection("users").document(user.getUid());
-        groupCol = db.collection("groups");
+        // some code here to add the courses to the ListView (this is filler @Alex)
+        ListView lv = findViewById(R.id.courseList);
+        items = new ArrayList<>();
 
-        //Display courses
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        lv.setAdapter(adapter);
+
+        Intent intent = getIntent();
+        ArrayList<String> courseList = intent.getStringArrayListExtra("com.example.studybuddy.COURSES");
+        items.addAll(courseList);
+
         userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document != null && document.exists()) {
-                        //if it exists, no need to create it.
-                        fetchUserData(user.getUid());
+                        //dont need anything
                     }
                     else {
                         // Group does not exist, create it
-                        Intent intent = getIntent();
-                        ArrayList<String> courseList = intent.getStringArrayListExtra("com.example.studybuddy.COURSES");
                         Map<String, Object> userInfo = new HashMap<>();
                         userInfo.put("groupList", new ArrayList<>());
                         userInfo.put("displayName", user.getDisplayName());
@@ -105,13 +112,6 @@ public class EnrolledClassesActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // some code here to add the courses to the ListView (this is filler @Alex)
-        ListView lv = findViewById(R.id.courseList);
-        items = new ArrayList<>();
-
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        lv.setAdapter(adapter);
 
         // navigate to dashboard page
 
@@ -273,23 +273,6 @@ public class EnrolledClassesActivity extends AppCompatActivity {
         items.addAll(updatedClassList);
         adapter.notifyDataSetChanged();
         Log.d("UI", "Group list UI updated successfully");
-    }
-
-    void fetchUserData(String userID) {
-        // Reference to the user document
-        DocumentReference userRef = db.collection("users").document(userID);
-
-        // Fetch the document
-        userRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e){
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                items.clear();
-                items.addAll((ArrayList<String>)documentSnapshot.get("classList"));
-                adapter.notifyDataSetChanged();
-                }
-            }
-        });
     }
 
     void removeClass(String name){

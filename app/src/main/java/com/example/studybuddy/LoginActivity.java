@@ -22,6 +22,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -80,10 +87,24 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(LoginActivity.this, EnrolledClassesActivity.class);
-                                    startActivity(intent);
-                                    finish();
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    String userID = mAuth.getCurrentUser().getUid();
+                                    DocumentReference userDoc = db.collection("users").document(userID);
+                                    userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                if (document != null && document.exists()) {
+                                                    Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+                                                    Intent intent = new Intent(LoginActivity.this, EnrolledClassesActivity.class);
+                                                    intent.putExtra("com.example.studybuddy.COURSES", (ArrayList<String>) document.get("classList"));
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+                                            }
+                                        }
+                                    });
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     editTextUsername.setError("Login failed");
