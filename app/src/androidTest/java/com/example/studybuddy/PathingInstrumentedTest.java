@@ -92,10 +92,12 @@ public class PathingInstrumentedTest {
         onView(withText("Alex's MATH Group")).perform(click());
         stall(2000);
     }
+
     private void Login(){
         onView(withId(R.id.username)).perform(typeText("testuser1@gmail.com"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText("password123"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
+        stall(2000);
     }
 
     private void navToDashboard(){
